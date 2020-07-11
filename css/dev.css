@@ -1,0 +1,20 @@
+#classview-container {
+   display: flex;
+   height: 80vh;
+}
+
+#classview-container .classview-sidebar {
+   flex: 25%;
+   overflow: auto;
+}
+
+#classview-container .classview-sidebar input[name='search'] {
+   width: 90%;
+   margin: 10px auto;
+}
+
+#classview-container .classview-info {
+   flex: 75%;
+   overflow: auto;
+   background-color: #333333aa;
+}
