@@ -41,7 +41,7 @@
             },
             success: function(data, textStatus, jqHXR) {
                infoContainer.empty();
-               $("<button class='btn-tab-searchoptions'>Search options</button>").appendTo(infoContainer);
+               $("<div class='toolbar'><button class='btn-tab-searchoptions'>Search options</button></div>").appendTo(infoContainer);
                $(objToTable({
                   table: 'Table',
                   field: 'Field',

@@ -4,8 +4,11 @@
 }
 
 #classview-container .classview-sidebar {
-   flex: 25%;
+   flex-basis: 25%;
+   max-width: 300px;
    overflow: auto;
+   background-color: white;
+
 }
 
 #classview-container .classview-sidebar input[name='search'] {
@@ -14,7 +17,29 @@
 }
 
 #classview-container .classview-info {
-   flex: 75%;
+   flex: 90%;
    overflow: auto;
-   background-color: #333333aa;
+   background-color: transparent;
+}
+
+#classview-container .classview-info div.toolbar {
+   margin-bottom: 10px;
+}
+#classview-container .classview-info button {
+   background: white;
+   border: 1px solid black;
+   border-radius: 5px;
+   cursor: pointer;
+}
+
+#classview-container .classview-info table.tab_cadre_fixe {
+   max-width: 100%;
+}
+
+#themedesigner-results {
+   background: white;
+   max-height: 200px;
+   overflow: auto;
+   width: 80%;
+   margin: auto;
 }
