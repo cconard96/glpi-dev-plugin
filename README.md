@@ -4,6 +4,7 @@ Provides a few tools to help GLPI and GLPI plugin developers.
 
 ## Requirements
 - GLPI >= 9.5.0
+- GLPI must be in debug mode, and your user must have the Update privilege for 'Config'.
 
 ## Tools
  - Class viewer

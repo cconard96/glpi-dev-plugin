@@ -1,14 +1,26 @@
 <root>
     <name>GLPI Development Helper</name>
     <key>dev</key>
-    <state>stable</state> <!-- stable | unstable | beta | alpha -->
-    <logo>https://raw.githubusercontent.com/cconard96/glpi-dev-plugin/master/Logo.png</logo>
+    <state>alpha</state> <!-- stable | unstable | beta | alpha -->
+    <logo>https://raw.githubusercontent.com/cconard96/glpi-dev-plugin/master/Logo40.png</logo>
     <description>
         <short>
             <en>Provides multiple tools to help core and plugin developers</en>
         </short>
         <long>
-            <en>Provides multiple tools to help core and plugin developers</en>
+            <en><![CDATA[
+Provides multiple tools to help core and plugin developers.
+
+Requirements
+- GLPI >= 9.5.0
+- GLPI must be in debug mode, and your user must have the Update privilege for 'Config'.
+
+Tools
+- Class viewer
+  Display search options for a class. Since search options can be added in many different places including plugins, it is nice to have a single place to view all of the options for a class.
+- Plugin creator
+  Provides a minimalist way to initialize a new plugin from the UI.
+            ]]></en>
         </long>
     </description>
     <homepage>https://github.com/cconard96/glpi-dev-plugin</homepage>
@@ -26,7 +38,6 @@
     </versions>
     <langs>
         <lang>en_US</lang>
-        <lang>...</lang>
     </langs>
     <license>GPL v2+</license>
     <tags>
@@ -41,5 +52,7 @@
         </lang>
     </tags>
     <screenshots>
+        <screenshot>https://raw.githubusercontent.com/cconard96/glpi-dev-plugin/master/screenshots/ClassViewer.png</screenshot>
+        <screenshot>https://raw.githubusercontent.com/cconard96/glpi-dev-plugin/master/screenshots/PluginCreator.png</screenshot>
     </screenshots>
 </root>
