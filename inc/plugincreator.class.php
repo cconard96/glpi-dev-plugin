@@ -36,6 +36,27 @@ class PluginDevPlugincreator extends CommonGLPI {
       echo '<td>' ._x('form_field', 'Maximum GLPI version (exclusive)', 'dev'). '</td><td>';
       echo Html::input('max_glpi');
       echo '</td></tr>';
+
+      echo '<tr><td>' ._x('form_field', 'Author', 'dev'). '</td><td>';
+      echo Html::input('author');
+      echo '</td>';
+      echo '<td>' ._x('form_field', 'License', 'dev'). '</td><td>';
+      echo Html::input('license');
+      echo '</td></tr>';
+
+      echo '<tr><td>' ._x('form_field', 'Homepage', 'dev'). '</td><td>';
+      echo Html::input('homepage');
+      echo '</td></tr>';
+      echo '</table>';
+
+      echo "<table class='tab_cadre_fixe'><thead>";
+      echo "<th colspan='4'>" . _x('form_section', 'Generator options', 'dev') . '</th></thead>';
+      echo '<td>' . _x('form_field', 'Use unit tests', 'dev') . '</td>';
+      echo '<td>';
+      Dropdown::showYesNo('use_unit_tests', 1);
+      echo '</td>';
+      echo '<td></td><td></td>';
+      echo '</tr>';
       echo '</table>';
 
       echo "<table class='tab_cadre_fixe'>";
@@ -146,6 +167,41 @@ EOF
       fwrite($setup_file, $checkconfig_func . PHP_EOL);
       fclose($setup_file);
       chmod($plugin_dir . '/setup.php', 0660);
+
+      if ($p['use_unit_tests']) {
+         if (!mkdir($plugin_dir . '/tests') && !is_dir($plugin_dir . '/tests')) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/tests'));
+         }
+         if (!mkdir($plugin_dir . '/tests/units') && !is_dir($plugin_dir . '/tests/units')) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/tests/units'));
+         }
+         $bootstrap_file = fopen($plugin_dir . '/tests/bootstrap.php', 'wb+');
+         fwrite($bootstrap_file, <<<EOF
+<?php
+
+global \$CFG_GLPI;
+define('GLPI_ROOT', dirname(dirname(dirname(__DIR__))));
+define("GLPI_CONFIG_DIR", GLPI_ROOT . "/tests");
+include GLPI_ROOT . "/inc/includes.php";
+include_once GLPI_ROOT . '/tests/GLPITestCase.php';
+include_once GLPI_ROOT . '/tests/DbTestCase.php';
+\$plugin = new \Plugin();
+\$plugin->checkStates(true);
+\$plugin->getFromDBbyDir('{$p['identifier']}');
+if (!plugin_{$p['identifier']}_check_prerequisites()) {
+  echo "\\nPrerequisites are not met!";
+  die(1);
+}
+if (!\$plugin->isInstalled('{$p['identifier']}')) {
+  \$plugin->install(\$plugin->getID());
+}
+if (!\$plugin->isActivated('{$p['identifier']}')) {
+  \$plugin->activate(\$plugin->getID());
+}
+EOF
+         );
+         fclose($bootstrap_file);
+      }
 
       return true;
    }
