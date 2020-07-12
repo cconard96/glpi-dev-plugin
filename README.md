@@ -8,6 +8,13 @@ Provides a few tools to help GLPI and GLPI plugin developers.
 
 ## Tools
  - Class viewer
-   - Display search options for a class. Since search options can be added in many different places including plugins, it is nice to have a single place to view all of the options for a class.
+   - Display general information for a class such as the display name (based on current language) and icon.
+   - Display search options for a class. Since search options can be added in many places including plugins, it is nice to have a single place to view all the options for a class.
+   - Ability to jump to the related Table (DB table schema viewer tool).
+ - DB table schema viewer
+   - List all GLPI and plugin tables and their schema.
+   - Ability to jump to the related Class/Itemtype (Class viewer tool).
+   - Provides helpful text for polymorphic relation fields (`items_id`). This lets developers know that the table/itemtype it links to depends on the `itemtype` column.
+   - Allows developers to quickly jump to the schema or class view for any foreign key fields.
  - Plugin creator
    - Provides a minimalist way to initialize a new plugin from the UI.
