@@ -29,7 +29,7 @@
 #classview-container .info-container table.tab_cadre_fixe, #dbschemaview-container .info-container table.tab_cadre_fixe {
   max-width: 100%;
 }
-#classview-container .info-container table.tab_cadre_fixe button, #dbschemaview-container .info-container table.tab_cadre_fixe button {
+#classview-container .info-container table.tab_cadre_fixe .info, #classview-container .info-container table.tab_cadre_fixe button, #dbschemaview-container .info-container table.tab_cadre_fixe .info, #dbschemaview-container .info-container table.tab_cadre_fixe button {
   margin-left: 5px;
 }
 

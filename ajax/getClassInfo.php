@@ -5,6 +5,10 @@ header("Content-Type: application/json; charset=UTF-8", true);
 Html::header_nocache();
 Session::checkLoginUser();
 
+/** @var CommonDBTM $itemtype */
+$itemtype = $_GET['class'];
 echo json_encode([
-   'searchoptions' => PluginDevClassviewer::getSearchOptions($_GET['class'])
+   'name'            => [$itemtype::getTypeName(1), $itemtype::getTypeName(Session::getPluralNumber())],
+   'icon'            => $itemtype::getIcon(),
+   'searchoptions'   => PluginDevClassviewer::getSearchOptions($itemtype)
 ], JSON_FORCE_OBJECT);

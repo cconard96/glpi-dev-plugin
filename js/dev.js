@@ -73,7 +73,13 @@
                   // Is a table name
                   table += "<td>" + v + getDBSchemaButton('table', v) + getClassViewButton('table', v) + "</td>";
                } else if (isFK(v)) {
-                  table += "<td>" + v + getDBSchemaButton('fk', v) + getClassViewButton('fk', v) + "</td>";
+                  if (v === 'items_id') {
+                     var info_text = 'Refers to the ID field in any one of multiple tables. It is a polymorphic relationship.' +
+                        ' Typically the itemtype it refers to is specified in the `itemtype` field.';
+                     table += "<td>" + v + "<i class='info fas fa-info-circle' title='"+info_text+"'></i></td>";
+                  } else {
+                     table += "<td>" + v + getDBSchemaButton('fk', v) + getClassViewButton('fk', v) + "</td>";
+                  }
                } else {
                   table += "<td>" + v + "</td>";
                }
@@ -100,6 +106,10 @@
             success: function(data, textStatus, jqHXR) {
                infoContainer.empty();
                showInfoHeader();
+               $("<div class='general-info'> \
+               <p>Display Name (Singular / Plural): "+data['name'][0]+" / " + data['name'][1] + "</p>\
+               <p>Icon: <i title='"+data['icon']+"' class='"+ data['icon'] + "'></i></p>\
+                  </div>").appendTo(infoContainer);
                $.each(data['searchoptions'], function(i, o) {
                   o.searchid = i;
                });
@@ -149,8 +159,6 @@
             },
             error: function() {
                showInfoHeader();
-               $("<h2>" + table + "</h2>").appendTo(infoContainer);
-               $("<button class='btn-tab-schema'>Schema</button>").appendTo(infoContainer);
                $("<h3>No schema available</h3>").appendTo(infoContainer);
             }
          });
