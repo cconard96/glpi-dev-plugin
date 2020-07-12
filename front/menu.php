@@ -10,6 +10,8 @@ $links = [];
 if (Session::haveRight('config', UPDATE) && $_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
    $links[] = Html::link(_x('action', PluginDevClassviewer::getTypeName(), 'dev'),
       "{$CFG_GLPI['root_doc']}/plugins/dev/front/classviewer.php");
+   $links[] = Html::link(_x('action', PluginDevDbschema::getTypeName(), 'dev'),
+      "{$CFG_GLPI['root_doc']}/plugins/dev/front/dbschema.php");
    $links[] = Html::link(_x('action', PluginDevPlugincreator::getTypeName(), 'dev'),
       "{$CFG_GLPI['root_doc']}/plugins/dev/front/plugincreator.form.php");
    $links[] = Html::link(_x('action', PluginDevThemedesigner::getTypeName(), 'dev'),

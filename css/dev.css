@@ -1,45 +1,44 @@
-#classview-container {
-   display: flex;
-   height: 80vh;
+#classview-container, #dbschemaview-container {
+  display: flex;
+  height: 80vh;
 }
-
-#classview-container .classview-sidebar {
-   flex-basis: 25%;
-   max-width: 300px;
-   overflow: auto;
-   background-color: white;
-
+#classview-container .sidebar, #dbschemaview-container .sidebar {
+  flex-basis: 25%;
+  max-width: 300px;
+  overflow: auto;
+  background-color: white;
 }
-
-#classview-container .classview-sidebar input[name='search'] {
-   width: 90%;
-   margin: 10px auto;
+#classview-container .sidebar input[name=search], #dbschemaview-container .sidebar input[name=search] {
+  width: 90%;
+  margin: 10px auto;
 }
-
-#classview-container .classview-info {
-   flex: 90%;
-   overflow: auto;
-   background-color: transparent;
+#classview-container .info-container, #dbschemaview-container .info-container {
+  flex: 90%;
+  overflow: auto;
+  background-color: transparent;
 }
-
-#classview-container .classview-info div.toolbar {
-   margin-bottom: 10px;
+#classview-container .info-container div.toolbar, #dbschemaview-container .info-container div.toolbar {
+  margin-bottom: 10px;
 }
-#classview-container .classview-info button {
-   background: white;
-   border: 1px solid black;
-   border-radius: 5px;
-   cursor: pointer;
+#classview-container .info-container button, #dbschemaview-container .info-container button {
+  background: white;
+  border: 1px solid black;
+  border-radius: 5px;
+  cursor: pointer;
 }
-
-#classview-container .classview-info table.tab_cadre_fixe {
-   max-width: 100%;
+#classview-container .info-container table.tab_cadre_fixe, #dbschemaview-container .info-container table.tab_cadre_fixe {
+  max-width: 100%;
+}
+#classview-container .info-container table.tab_cadre_fixe button, #dbschemaview-container .info-container table.tab_cadre_fixe button {
+  margin-left: 5px;
 }
 
 #themedesigner-results {
-   background: white;
-   max-height: 200px;
-   overflow: auto;
-   width: 80%;
-   margin: auto;
+  background: white;
+  max-height: 200px;
+  overflow: auto;
+  width: 80%;
+  margin: auto;
 }
+
+/*# sourceMappingURL=dev.css.map */

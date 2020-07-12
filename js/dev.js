@@ -2,28 +2,81 @@
    window.glpiDevHelper = function() {
       var self = this;
       this.ajax_root = '';
+      this.front_root = '';
 
-      var objToTable = function(headers, obj) {
+      var isFK = function(field_name) {
+         return (typeof field_name === 'string') && (field_name.match("._id$") || field_name.match("._id_"));
+      };
+
+      var convertSchemaIdentifier = function(from, to, value) {
+         var converted = null;
+         $.ajax({
+            method: 'GET',
+            url: (self.ajax_root + "schemaIdentifiersResolution.php"),
+            data: {
+               from: from,
+               to: to,
+               value: value
+            },
+            async: false,
+            success: function(data) {
+               converted = data;
+            },
+            error: function() {
+               return null;
+            }
+         });
+         return converted;
+      };
+
+      var getDBSchemaUrl = function(table) {
+         return self.front_root + "dbschema.php?db_name=" + table;
+      };
+
+      var getClassViewUrl = function(class_name) {
+         return self.front_root + "classviewer.php?class_name=" + class_name;
+      };
+
+      var getDBSchemaButton = function(format, value) {
+         return '<button title="View Table" class="dbschema-link-btn" data-format="' + format + '" data-value="' + value + '">' +
+            '<i class="fas fa-table"></i></a>';
+      };
+
+      var getClassViewButton = function(format, value) {
+         return '<button title="View Item Type" class="classview-link-btn" data-format="' + format + '" data-value="' + value + '">' +
+            '<i class="fas fa-sitemap"></i></a>';
+      };
+
+      var objToTable = function(main_header, headers, obj) {
          var table = "<table class='tab_cadre_fixe'>";
-         table += "<thead><th>Search ID</th>";
+         table += "<thead>";
+         if (main_header !== null) {
+            table += "<tr><th class='center' colspan='" + Object.keys(headers).length + "'>" + main_header + "</th></tr>";
+         }
+         table += "<tr>";
          $.each(headers, function(hkey, htext) {
             table += "<th>" + htext + "</th>";
          });
+         table += "</tr>";
          table += "</thead><tbody>";
          var o = false;
          $.each(obj, function(okey, oval) {
-            if (isNaN(okey)) {
-               return;
-            }
             if (o) {
                table += "<tr class='tab_bg_1'>";
             } else {
                table += "<tr class='tab_bg_2'>";
             }
             o = !o;
-            table += "<td>" + okey + "</td>";
             $.each(headers, function(hkey, htext) {
-               table += "<td>" + (oval[hkey] || '') + "</td>";
+               var v = (oval[hkey] || '');
+               if (hkey === 'table') {
+                  // Is a table name
+                  table += "<td>" + v + getDBSchemaButton('table', v) + getClassViewButton('table', v) + "</td>";
+               } else if (isFK(v)) {
+                  table += "<td>" + v + getDBSchemaButton('fk', v) + getClassViewButton('fk', v) + "</td>";
+               } else {
+                  table += "<td>" + v + "</td>";
+               }
             });
             table += "</tr>";
          });
@@ -31,8 +84,13 @@
          return table;
       };
 
-      this.showInfo = function(classname) {
-         var infoContainer = $("#classview-container .classview-info");
+      this.showClassInfo = function(classname) {
+         var infoContainer = $("#classview-container .info-container");
+
+         var showInfoHeader = function() {
+            $("<h2>" + classname + "</h2>").appendTo(infoContainer);
+            $("<div class='toolbar'>"+getDBSchemaButton('class_name', classname)+"</div>").appendTo(infoContainer);
+         };
          $.ajax({
             method: 'GET',
             url: (self.ajax_root + "getClassInfo.php"),
@@ -41,8 +99,12 @@
             },
             success: function(data, textStatus, jqHXR) {
                infoContainer.empty();
-               $("<div class='toolbar'><button class='btn-tab-searchoptions'>Search options</button></div>").appendTo(infoContainer);
-               $(objToTable({
+               showInfoHeader();
+               $.each(data['searchoptions'], function(i, o) {
+                  o.searchid = i;
+               });
+               $(objToTable('Search Options', {
+                  searchid: 'Search ID',
                   table: 'Table',
                   field: 'Field',
                   name: 'Name',
@@ -53,19 +115,73 @@
             },
             error: function() {
                infoContainer.empty();
-               $("<button class='btn-tab-searchoptions'>Search options</button>").appendTo(infoContainer);
+               showInfoHeader();
                $("<h3>No search options</h3>").appendTo(infoContainer);
             }
          });
       };
 
+      this.showDBTableSchema = function(table) {
+         var infoContainer = $("#dbschemaview-container .info-container");
+
+         var showInfoHeader = function() {
+            $("<h2>" + table + "</h2>").appendTo(infoContainer);
+            $("<div class='toolbar'>"+getClassViewButton('table', table)+"</div>").appendTo(infoContainer);
+         };
+
+         $.ajax({
+            method: 'GET',
+            url: (self.ajax_root + "getDBTableSchema.php"),
+            data: {
+               table: table
+            },
+            success: function(data, textStatus, jqHXR) {
+               infoContainer.empty();
+               showInfoHeader();
+               $(objToTable('Table Schema', {
+                  Field: 'Field',
+                  Type: 'Data Type',
+                  Null: 'Nullable',
+                  Key: 'Key Type',
+                  Default: 'Default Value',
+                  Extra: 'Extra Info'
+               }, data)).appendTo(infoContainer);
+            },
+            error: function() {
+               showInfoHeader();
+               $("<h2>" + table + "</h2>").appendTo(infoContainer);
+               $("<button class='btn-tab-schema'>Schema</button>").appendTo(infoContainer);
+               $("<h3>No schema available</h3>").appendTo(infoContainer);
+            }
+         });
+      };
+
       this.init = function() {
+         $.urlParam = function (name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+               .exec(window.location.search);
+
+            return (results !== null) ? results[1] || 0 : false;
+         };
+
          self.ajax_root = CFG_GLPI.root_doc + "/plugins/dev/ajax/";
+         self.front_root = CFG_GLPI.root_doc + "/plugins/dev/front/";
+
+         var onClassViewLinkBtnClick = function() {
+            var btn = $(this);
+            var value = convertSchemaIdentifier(btn.data('format'), 'class_name', btn.data('value'));
+            window.location = getClassViewUrl(value);
+         };
+         var onDBSchemaLinkBtnClick = function() {
+            var btn = $(this);
+            var value = convertSchemaIdentifier(btn.data('format'), 'table', btn.data('value'));
+            window.location = getDBSchemaUrl(value);
+         };
 
          if ($("#classview-container").length > 0) {
-            var list_items = $("#classview-container .classview-sidebar ul li");
-            $("#classview-container .classview-sidebar input[name='search']").on('input', function(e) {
-               var filter = $("#classview-container .classview-sidebar input[name='search']").val().toLowerCase();
+            var list_items = $("#classview-container .sidebar ul li");
+            $("#classview-container .sidebar input[name='search']").on('input', function(e) {
+               var filter = $("#classview-container .sidebar input[name='search']").val().toLowerCase();
                $.each(list_items, function(ind, item) {
                   item = $(item);
                   if (!item.text().toLowerCase().includes(filter)) {
@@ -76,8 +192,36 @@
                });
             });
             list_items.on('click', 'a', function(e) {
-               self.showInfo(e.target.innerText);
+               self.showClassInfo(e.target.innerText);
             });
+            $("#classview-container .info-container").on('click', '.dbschema-link-btn', onDBSchemaLinkBtnClick);
+            $("#classview-container .info-container").on('click', '.classview-link-btn', onClassViewLinkBtnClick);
+            if ($.urlParam('class_name')) {
+               self.showClassInfo($.urlParam('class_name'));
+            }
+         }
+
+         if ($("#dbschemaview-container").length > 0) {
+            var list_items = $("#dbschemaview-container .sidebar ul li");
+            $("#dbschemaview-container .sidebar input[name='search']").on('input', function(e) {
+               var filter = $("#dbschemaview-container .sidebar input[name='search']").val().toLowerCase();
+               $.each(list_items, function(ind, item) {
+                  item = $(item);
+                  if (!item.text().toLowerCase().includes(filter)) {
+                     item.hide();
+                  } else {
+                     item.show();
+                  }
+               });
+            });
+            list_items.on('click', 'a', function(e) {
+               self.showDBTableSchema(e.target.innerText);
+            });
+            $("#dbschemaview-container .info-container").on('click', '.dbschema-link-btn', onDBSchemaLinkBtnClick);
+            $("#dbschemaview-container .info-container").on('click', '.classview-link-btn', onClassViewLinkBtnClick);
+            if ($.urlParam('db_name')) {
+               self.showDBTableSchema($.urlParam('db_name'));
+            }
          }
       };
    };

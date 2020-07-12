@@ -17,7 +17,7 @@ foreach ($loadedClasses as $class) {
 sort($glpiClasses);
 
 echo "<div id='classview-container'>";
-echo "<div class='classview-sidebar'>";
+echo "<div class='sidebar'>";
 echo "<input name='search'/>";
 echo "<ul>";
 foreach ($glpiClasses as $class) {
@@ -26,7 +26,7 @@ foreach ($glpiClasses as $class) {
 echo "</ul>";
 echo "</div>";
 
-echo "<div class='classview-info'>";
+echo "<div class='info-container'>";
 
 echo "</div>";
 echo "</div>";

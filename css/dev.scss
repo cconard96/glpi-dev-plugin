@@ -1,0 +1,49 @@
+#classview-container, #dbschemaview-container {
+   display: flex;
+   height: 80vh;
+
+   .sidebar {
+      flex-basis: 25%;
+      max-width: 300px;
+      overflow: auto;
+      background-color: white;
+
+      input[name='search'] {
+         width: 90%;
+         margin: 10px auto;
+      }
+   }
+
+   .info-container {
+      flex: 90%;
+      overflow: auto;
+      background-color: transparent;
+
+      div.toolbar {
+         margin-bottom: 10px;
+      }
+
+      button {
+         background: white;
+         border: 1px solid black;
+         border-radius: 5px;
+         cursor: pointer;
+      }
+
+      table.tab_cadre_fixe {
+         max-width: 100%;
+
+         button {
+            margin-left: 5px;
+         }
+      }
+   }
+}
+
+#themedesigner-results {
+   background: white;
+   max-height: 200px;
+   overflow: auto;
+   width: 80%;
+   margin: auto;
+}
