@@ -60,6 +60,7 @@ Tools
     </tags>
     <screenshots>
         <screenshot>https://raw.githubusercontent.com/cconard96/glpi-dev-plugin/master/screenshots/ClassViewer.png</screenshot>
+        <screenshot>https://raw.githubusercontent.com/cconard96/glpi-dev-plugin/master/screenshots/DBSchemaViewer.png</screenshot>
         <screenshot>https://raw.githubusercontent.com/cconard96/glpi-dev-plugin/master/screenshots/PluginCreator.png</screenshot>
     </screenshots>
 </root>
