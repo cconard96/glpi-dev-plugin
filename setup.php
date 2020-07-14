@@ -2,7 +2,7 @@
 
 define('PLUGIN_DEV_VERSION', '1.0.0');
 define('PLUGIN_DEV_MIN_GLPI', '9.5.0');
-define('PLUGIN_DEV_MAX_GLPI', '9.6.0');
+define('PLUGIN_DEV_MAX_GLPI', '11.0.0');
 
 function plugin_init_dev() {
    global $PLUGIN_HOOKS;
