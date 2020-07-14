@@ -7,6 +7,7 @@ Session::checkRight("config", UPDATE);
 $plugin_creator = new PluginDevPlugincreator();
 if (isset($_POST["init"])) {
    PluginDevPlugincreator::initPlugin($_POST);
+   Session::addMessageAfterRedirect('Initialized plugin');
    Html::back();
 
 } else {

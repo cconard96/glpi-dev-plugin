@@ -203,6 +203,14 @@ EOF
          fclose($bootstrap_file);
       }
 
+      // Add common directories
+      $common_dirs = ['ajax', 'css', 'front', 'inc', 'js'];
+      foreach ($common_dirs as $dir) {
+         if (!mkdir($plugin_dir . '/' . $dir) && !is_dir($plugin_dir . '/' . $dir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/' . $dir));
+         }
+      }
+
       return true;
    }
 }
