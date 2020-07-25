@@ -1,5 +1,5 @@
 (function() {
-   window.glpiDevHelper = function() {
+   window.glpiDevHelper =  new function() {
       var self = this;
       this.ajax_root = '';
       this.front_root = '';
@@ -60,6 +60,7 @@
          table += "</tr>";
          table += "</thead><tbody>";
          var o = false;
+         let embedded = $('#classview-container,#dbschemaview-container').data('embedded');
          $.each(obj, function(okey, oval) {
             if (o) {
                table += "<tr class='tab_bg_1'>";
@@ -69,19 +70,24 @@
             o = !o;
             $.each(headers, function(hkey, htext) {
                var v = (oval[hkey] || '');
-               if (hkey === 'table') {
-                  // Is a table name
-                  table += "<td>" + v + getDBSchemaButton('table', v) + getClassViewButton('table', v) + "</td>";
-               } else if (isFK(v)) {
-                  if (v === 'items_id') {
-                     var info_text = 'Refers to the ID field in any one of multiple tables. It is a polymorphic relationship.' +
-                        ' Typically the itemtype it refers to is specified in the `itemtype` field.';
-                     table += "<td>" + v + "<i class='info fas fa-info-circle' title='"+info_text+"'></i></td>";
-                  } else {
-                     table += "<td>" + v + getDBSchemaButton('fk', v) + getClassViewButton('fk', v) + "</td>";
-                  }
-               } else {
+
+               if (embedded) {
                   table += "<td>" + v + "</td>";
+               } else {
+                  if (hkey === 'table') {
+                     // Is a table name
+                     table += "<td>" + v + getDBSchemaButton('table', v) + getClassViewButton('table', v) + "</td>";
+                  } else if (isFK(v)) {
+                     if (v === 'items_id') {
+                        var info_text = 'Refers to the ID field in any one of multiple tables. It is a polymorphic relationship.' +
+                           ' Typically the itemtype it refers to is specified in the `itemtype` field.';
+                        table += "<td>" + v + "<i class='info fas fa-info-circle' title='" + info_text + "'></i></td>";
+                     } else {
+                        table += "<td>" + v + getDBSchemaButton('fk', v) + getClassViewButton('fk', v) + "</td>";
+                     }
+                  } else {
+                     table += "<td>" + v + "</td>";
+                  }
                }
             });
             table += "</tr>";
@@ -188,6 +194,11 @@
 
          if ($("#classview-container").length > 0) {
             var list_items = $("#classview-container .sidebar ul li");
+            if (window.location.hash !== null) {
+               console.log(list_items.find('a[href="'+window.location.hash+'"]'));
+               self.urlParam('class_name');
+               list_items.find('a[href="'+window.location.hash+'"]').click();
+            }
             $("#classview-container .sidebar input[name='search']").on('input', function(e) {
                var filter = $("#classview-container .sidebar input[name='search']").val().toLowerCase();
                $.each(list_items, function(ind, item) {
@@ -236,6 +247,5 @@
 })();
 
 $(document).ready(function() {
-   var devHelper = new window.glpiDevHelper();
-   devHelper.init();
+   window.glpiDevHelper.init();
 });

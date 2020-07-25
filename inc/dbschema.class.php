@@ -27,4 +27,47 @@ class PluginDevDbschema extends CommonGLPI {
       $schema = $DB->listFields($table);
       return $schema;
    }
+
+   public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+   {
+      return self::getTypeName();
+   }
+
+   public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+   {
+      self::showForItem($item);
+   }
+
+   public static function showForItem(CommonGLPI $item)
+   {
+      echo "<div id='dbschemaview-container' data-embedded='true'>";
+      echo "<div class='sidebar' style='display: none'></div>";
+      echo "<div class='info-container'>";
+
+      echo "</div>";
+      echo "</div>";
+      echo Html::scriptBlock("window.glpiDevHelper.showDBTableSchema('{$item::getTable()}')");
+   }
+
+   public function showForm()
+   {
+      $tables = self::getTables();
+
+      sort($tables);
+
+      echo "<div id='dbschemaview-container'>";
+      echo "<div class='sidebar'>";
+      echo "<input name='search'/>";
+      echo "<ul>";
+      foreach ($tables as $table) {
+         echo "<li><a href='#'>$table</a></li>";
+      }
+      echo "</ul>";
+      echo "</div>";
+
+      echo "<div class='info-container'>";
+
+      echo "</div>";
+      echo "</div>";
+   }
 }

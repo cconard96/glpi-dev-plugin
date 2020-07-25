@@ -1,5 +1,7 @@
 #classview-container, #dbschemaview-container {
   display: flex;
+}
+#classview-container:not([data-embedded=true]), #dbschemaview-container:not([data-embedded=true]) {
   height: 80vh;
 }
 #classview-container .sidebar, #dbschemaview-container .sidebar {

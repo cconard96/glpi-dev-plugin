@@ -1,6 +1,8 @@
 #classview-container, #dbschemaview-container {
    display: flex;
-   height: 80vh;
+   &:not([data-embedded="true"]) {
+      height: 80vh;
+   }
 
    .sidebar {
       flex-basis: 25%;

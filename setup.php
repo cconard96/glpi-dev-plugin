@@ -13,6 +13,12 @@ function plugin_init_dev() {
 
    if (Session::haveRight('config', UPDATE) && $_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
       $PLUGIN_HOOKS['menu_toadd']['dev'] = ['plugins' => 'PluginDevMenu'];
+      Plugin::registerClass(PluginDevDbschema::class, [
+         'addtabon'  => get_declared_classes()
+      ]);
+      Plugin::registerClass(PluginDevClassviewer::class, [
+         'addtabon'  => get_declared_classes()
+      ]);
    }
 }
 
