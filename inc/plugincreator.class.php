@@ -37,8 +37,10 @@ class PluginDevPlugincreator extends CommonGLPI {
       echo Html::input('max_glpi');
       echo '</td></tr>';
 
-      echo '<tr><td>' ._x('form_field', 'Author', 'dev'). '</td><td>';
-      echo Html::input('author');
+      echo '<tr><td>' ._x('form_field', 'Authors', 'dev'). '</td><td>';
+      echo Html::input('authors');
+      echo '&nbsp;';
+      Html::showToolTip(_x('form_field_tt', 'Comma separated', 'dev'));
       echo '</td>';
       echo '<td>' ._x('form_field', 'License', 'dev'). '</td><td>';
       echo Html::input('license');
@@ -46,7 +48,29 @@ class PluginDevPlugincreator extends CommonGLPI {
 
       echo '<tr><td>' ._x('form_field', 'Homepage', 'dev'). '</td><td>';
       echo Html::input('homepage');
-      echo '</td></tr>';
+      echo '</td>';
+      echo '<td>' ._x('form_field', 'Language', 'dev'). '</td><td>';
+      Dropdown::showLanguages('language', [
+         'value'  => $_SESSION['glpilanguage']
+      ]);
+      echo '</td>';
+      echo '</tr>';
+
+      echo '<tr><td>' ._x('form_field', 'Description (Short)', 'dev'). '</td><td>';
+      Html::textarea([
+         'name'   => 'description_short',
+         'cols'   => 45,
+         'rows'   => 4
+      ]);
+      echo '</td><td></td></tr>';
+
+      echo '<tr><td>' ._x('form_field', 'Description (Long)', 'dev'). '</td><td>';
+      Html::textarea([
+         'name' => 'description_long',
+         'cols'   => 45,
+         'rows'   => 4
+      ]);
+      echo '</td><td></td></tr>';
       echo '</table>';
 
       echo "<table class='tab_cadre_fixe'><thead>";
@@ -55,7 +79,10 @@ class PluginDevPlugincreator extends CommonGLPI {
       echo '<td>';
       Dropdown::showYesNo('use_unit_tests', 1);
       echo '</td>';
-      echo '<td></td><td></td>';
+      echo '<td>' . _x('form_field', 'Prepare for Plugin Directory and Marketplace', 'dev') . '</td>';
+      echo '<td>';
+      Dropdown::showYesNo('use_plugin_xml', 1);
+      echo '</td>';
       echo '</tr>';
       echo '</table>';
 
@@ -69,9 +96,8 @@ class PluginDevPlugincreator extends CommonGLPI {
       Html::closeForm();
    }
 
-   public static function initPlugin(array $options) {
-      global $CFG_GLPI;
-
+   public static function initPlugin(array $options)
+   {
       $p = [
          'identifier'   => null
       ];
@@ -82,8 +108,11 @@ class PluginDevPlugincreator extends CommonGLPI {
       if ($p['identifier'] === null) {
          $p['identifier'] = str_replace(' ', '', strtolower($p['name']));
       }
+      $p['language_short'] = explode('_', $p['language'])[0];
+      $p['authors'] = array_map('trim', explode(',', $p['authors']));
 
       // Set the plugins path
+      // Note: Always use plugin directory and not marketplace
       $plugins_dir = '../../../plugins';
       $plugin_dir = $plugins_dir . '/' . $p['identifier'];
 
@@ -98,33 +127,53 @@ class PluginDevPlugincreator extends CommonGLPI {
       }
 
       // Create hook.php
-      $install_func = new GlobalFunction("plugin_{$p['identifier']}_install");
-      $install_func->setBody('return true;');
-      $uninstall_func = new GlobalFunction("plugin_{$p['identifier']}_uninstall");
-      $uninstall_func->setBody('return true;');
-      $hook_file = fopen($plugin_dir . '/hook.php', 'wb+');
-      fwrite($hook_file, '<?php' . PHP_EOL);
-      fwrite($hook_file, $install_func . PHP_EOL);
-      fwrite($hook_file, $uninstall_func . PHP_EOL);
-      fclose($hook_file);
-      chmod($plugin_dir . '/hook.php', 0660);
+      self::initHooks($plugin_dir, $p);
 
       // Create setup.php
-      $init_func = new GlobalFunction("plugin_init_{$p['identifier']}");
+      self::initSetup($plugin_dir, $p);
+
+      // Init tests if that generator option was selected
+      if ($p['use_unit_tests']) {
+         self::initTests($plugin_dir, $p);
+      }
+
+      if ($p['use_plugin_xml']) {
+         self::initPluginXml($plugin_dir, $p);
+      }
+
+      // Add common directories
+      self::initStructure($plugin_dir, $p);
+
+      return true;
+   }
+
+   private static function initStructure($plugin_dir, $options)
+   {
+      $common_dirs = ['ajax', 'css', 'front', 'inc', 'js'];
+      foreach ($common_dirs as $dir) {
+         if (!mkdir($plugin_dir . '/' . $dir) && !is_dir($plugin_dir . '/' . $dir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/' . $dir));
+         }
+      }
+   }
+
+   private static function initSetup($plugin_dir, $options)
+   {
+      $init_func = new GlobalFunction("plugin_init_{$options['identifier']}");
       $init_func->setBody(<<<EOF
 global \$PLUGIN_HOOKS;
-\$PLUGIN_HOOKS['csrf_compliant']['{$p['identifier']}'] = true;
+\$PLUGIN_HOOKS['csrf_compliant']['{$options['identifier']}'] = true;
 EOF
       );
-      $uc_identifier = strtoupper($p['identifier']);
-      $version_func = new GlobalFunction("plugin_version_{$p['identifier']}");
+      $uc_identifier = strtoupper($options['identifier']);
+      $version_func = new GlobalFunction("plugin_version_{$options['identifier']}");
       $version_func->setBody(<<<EOF
 return [
-      'name'         => __('{$p['name']}', '{$p['identifier']}'),
+      'name'         => __('{$options['name']}', '{$options['identifier']}'),
       'version'      => PLUGIN_{$uc_identifier}_VERSION,
-      'author'       => '{$p['author']}',
-      'license'      => '{$p['license']}',
-      'homepage'     =>'{$p['homepage']}',
+      'author'       => '{$options['author']}',
+      'license'      => '{$options['license']}',
+      'homepage'     =>'{$options['homepage']}',
       'requirements' => [
          'glpi'   => [
             'min' => PLUGIN_{$uc_identifier}_MIN_GLPI,
@@ -134,7 +183,7 @@ return [
    ];
 EOF
       );
-      $prerequisites_func = new GlobalFunction("plugin_{$p['identifier']}_check_prerequisites");
+      $prerequisites_func = new GlobalFunction("plugin_{$options['identifier']}_check_prerequisites");
       $prerequisites_func->setBody(<<<EOF
 if (!method_exists('Plugin', 'checkGlpiVersion')) {
       \$version = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
@@ -154,29 +203,45 @@ if (!method_exists('Plugin', 'checkGlpiVersion')) {
    return true;
 EOF
       );
-      $checkconfig_func = new GlobalFunction("plugin_{$p['identifier']}_check_config");
+      $checkconfig_func = new GlobalFunction("plugin_{$options['identifier']}_check_config");
       $checkconfig_func->setBody('return true;');
       $setup_file = fopen($plugin_dir . '/setup.php', 'wb+');
       fwrite($setup_file, '<?php' . PHP_EOL . PHP_EOL);
-      fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_VERSION', '{$p['version']}');" . PHP_EOL);
-      fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_MIN_GLPI', '{$p['min_glpi']}');" . PHP_EOL);
-      fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_MAX_GLPI', '{$p['max_glpi']}');" . PHP_EOL . PHP_EOL);
+      fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_VERSION', '{$options['version']}');" . PHP_EOL);
+      fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_MIN_GLPI', '{$options['min_glpi']}');" . PHP_EOL);
+      fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_MAX_GLPI', '{$options['max_glpi']}');" . PHP_EOL . PHP_EOL);
       fwrite($setup_file, $init_func . PHP_EOL);
       fwrite($setup_file, $version_func . PHP_EOL);
       fwrite($setup_file, $prerequisites_func . PHP_EOL);
       fwrite($setup_file, $checkconfig_func . PHP_EOL);
       fclose($setup_file);
       chmod($plugin_dir . '/setup.php', 0660);
+   }
 
-      if ($p['use_unit_tests']) {
-         if (!mkdir($plugin_dir . '/tests') && !is_dir($plugin_dir . '/tests')) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/tests'));
-         }
-         if (!mkdir($plugin_dir . '/tests/units') && !is_dir($plugin_dir . '/tests/units')) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/tests/units'));
-         }
-         $bootstrap_file = fopen($plugin_dir . '/tests/bootstrap.php', 'wb+');
-         fwrite($bootstrap_file, <<<EOF
+   private static function initHooks($plugin_dir, $options)
+   {
+      $install_func = new GlobalFunction("plugin_{$options['identifier']}_install");
+      $install_func->setBody('return true;');
+      $uninstall_func = new GlobalFunction("plugin_{$options['identifier']}_uninstall");
+      $uninstall_func->setBody('return true;');
+      $hook_file = fopen($plugin_dir . '/hook.php', 'wb+');
+      fwrite($hook_file, '<?php' . PHP_EOL);
+      fwrite($hook_file, $install_func . PHP_EOL);
+      fwrite($hook_file, $uninstall_func . PHP_EOL);
+      fclose($hook_file);
+      chmod($plugin_dir . '/hook.php', 0660);
+   }
+
+   private static function initTests($plugin_dir, $options)
+   {
+      if (!mkdir($plugin_dir . '/tests') && !is_dir($plugin_dir . '/tests')) {
+         throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/tests'));
+      }
+      if (!mkdir($plugin_dir . '/tests/units') && !is_dir($plugin_dir . '/tests/units')) {
+         throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/tests/units'));
+      }
+      $bootstrap_file = fopen($plugin_dir . '/tests/bootstrap.php', 'wb+');
+      fwrite($bootstrap_file, <<<EOF
 <?php
 
 global \$CFG_GLPI;
@@ -187,30 +252,65 @@ include_once GLPI_ROOT . '/tests/GLPITestCase.php';
 include_once GLPI_ROOT . '/tests/DbTestCase.php';
 \$plugin = new \Plugin();
 \$plugin->checkStates(true);
-\$plugin->getFromDBbyDir('{$p['identifier']}');
-if (!plugin_{$p['identifier']}_check_prerequisites()) {
+\$plugin->getFromDBbyDir('{$options['identifier']}');
+if (!plugin_{$options['identifier']}_check_prerequisites()) {
   echo "\\nPrerequisites are not met!";
   die(1);
 }
-if (!\$plugin->isInstalled('{$p['identifier']}')) {
+if (!\$plugin->isInstalled('{$options['identifier']}')) {
   \$plugin->install(\$plugin->getID());
 }
-if (!\$plugin->isActivated('{$p['identifier']}')) {
+if (!\$plugin->isActivated('{$options['identifier']}')) {
   \$plugin->activate(\$plugin->getID());
 }
 EOF
-         );
-         fclose($bootstrap_file);
+      );
+      fclose($bootstrap_file);
+   }
+
+   private static function initPluginXml($plugin_dir, $options)
+   {
+      $xml = new SimpleXMLElement('<xml/>');
+      $root = $xml->addChild('root');
+      $root->addChild('name', $options['name']);
+      $root->addChild('key', $options['identifier']);
+      $root->addChild('state', 'stable');
+      $root->addChild('logo');
+      $description = $root->addChild('description');
+      $short_desc = $description->addChild('short');
+      $short_desc->addChild($options['language_short'], $options['description_short']);
+      $long_desc = $description->addChild('long');
+      $long_desc->addChild($options['language_short'], $options['description_long']);
+      $root->addChild('homepage', $options['homepage']);
+
+      // Placeholders
+      $root->addChild('download', $options['download']);
+      $root->addChild('issues', $options['issues']);
+      $root->addChild('readme', $options['readme']);
+
+      $authors = $root->addChild('authors');
+      foreach ($options['authors'] as $author) {
+         $authors->addChild('author', $author);
       }
 
-      // Add common directories
-      $common_dirs = ['ajax', 'css', 'front', 'inc', 'js'];
-      foreach ($common_dirs as $dir) {
-         if (!mkdir($plugin_dir . '/' . $dir) && !is_dir($plugin_dir . '/' . $dir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir . '/' . $dir));
-         }
-      }
+      $versions = $root->addChild('versions');
+      $base_version = $versions->addChild('version');
+      $base_version->addChild('num', $options['version']);
+      $base_version->addChild('compatibility', '>=' . $options['min_glpi'] . ' <' . $options['max_glpi']);
 
-      return true;
+      $langs = $root->addChild('langs');
+      $langs->addChild('lang', $options['language']);
+
+      $root->addChild('license', $options['license']);
+
+      // Placeholders
+      $tags = $root->addChild('tags');
+      $tags->addChild($options['language_short']);
+      $root->addChild('screenshots');
+
+      $plugin_xml_file = fopen($plugin_dir . "/{$options['identifier']}.xml", 'wb+');
+      fwrite($plugin_xml_file, $xml->asXML());
+      fclose($plugin_xml_file);
+      chmod($plugin_dir . '/hook.php', 0660);
    }
 }
