@@ -46,8 +46,6 @@ class PluginDevClassviewer extends CommonGLPI {
 
    public function showForm()
    {
-      $tables = self::getTables();
-
       $loadedClasses = get_declared_classes();
       $glpiClasses = [];
 
