@@ -8,7 +8,9 @@ Session::checkLoginUser();
 /** @var CommonDBTM $itemtype */
 $itemtype = $_GET['class'];
 echo json_encode([
-   'name'            => [$itemtype::getTypeName(1), $itemtype::getTypeName(Session::getPluralNumber())],
-   'icon'            => $itemtype::getIcon(),
-   'searchoptions'   => PluginDevClassviewer::getSearchOptions($itemtype)
+   'name'                     => [$itemtype::getTypeName(1), $itemtype::getTypeName(Session::getPluralNumber())],
+   'icon'                     => $itemtype::getIcon(),
+   'searchoptions'            => PluginDevClassviewer::getSearchOptions($itemtype),
+   'missing_searchoptions'    => PluginDevClassviewer::getMissingSearchOptions($itemtype),
+   'unlinked_searchoptions'   => PluginDevClassviewer::getUnlinkedSearchOptions($itemtype),
 ], JSON_FORCE_OBJECT);

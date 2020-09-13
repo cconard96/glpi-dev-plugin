@@ -72,4 +72,52 @@ class PluginDevClassviewer extends CommonGLPI {
       echo "</div>";
       echo "</div>";
    }
+
+   public static function getUnlinkedSearchOptions($class)
+   {
+      global $DB;
+
+      $unlinked_searchopts = [];
+      try {
+         $table = $class::getTable();
+         $found_options = array_filter(self::getSearchOptions($class), static function ($opt) use ($table) {
+            return strcmp($opt['table'], $table) === 0 && (!isset($opt['datatype']) || $opt['datatype'] !== 'specific');
+         });
+         $found_fields = $DB->listFields($class::getTable());
+         if ($found_fields) {
+            $local_fields = array_column(array_filter($found_fields, static function ($field_def) {
+               return !isForeignKeyField($field_def['Field']);
+            }), 'Field');
+            $unlinked_searchopts = array_diff(array_column($found_options, 'field'), $local_fields);
+         }
+
+         return $unlinked_searchopts;
+      } catch (Exception $e) {
+         return [];
+      }
+   }
+
+   public static function getMissingSearchOptions($class)
+   {
+      global $DB;
+
+      $missing_searchopts = [];
+      try {
+         $table = $class::getTable();
+         $found_options = array_filter(self::getSearchOptions($class), static function($opt) use ($table) {
+            return strcmp($opt['table'], $table) === 0;
+         });
+         $found_fields = $DB->listFields($class::getTable());
+         if ($found_fields) {
+            $local_fields = array_column(array_filter($found_fields, static function ($field_def) {
+               return !isForeignKeyField($field_def['Field']);
+            }), 'Field');
+            $missing_searchopts = array_diff($local_fields, array_column($found_options, 'field'));
+         }
+
+         return $missing_searchopts;
+      } catch (Exception $e) {
+         return [];
+      }
+   }
 }

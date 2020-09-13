@@ -8,6 +8,8 @@ global $CFG_GLPI;
 
 $links = [];
 if (Session::haveRight('config', UPDATE) && $_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
+   $links[] = Html::link(_x('action', PluginDevAudit::getTypeName(), 'dev'),
+      "{$CFG_GLPI['root_doc']}/plugins/dev/front/audit.php");
    $links[] = Html::link(_x('action', PluginDevClassviewer::getTypeName(), 'dev'),
       "{$CFG_GLPI['root_doc']}/plugins/dev/front/classviewer.php");
    $links[] = Html::link(_x('action', PluginDevDbschema::getTypeName(), 'dev'),

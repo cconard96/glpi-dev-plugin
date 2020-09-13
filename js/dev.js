@@ -10,6 +10,9 @@
 
       var convertSchemaIdentifier = function(from, to, value) {
          var converted = null;
+         if (from === to) {
+            return value;
+         }
          $.ajax({
             method: 'GET',
             url: (self.ajax_root + "schemaIdentifiersResolution.php"),
@@ -39,12 +42,12 @@
 
       var getDBSchemaButton = function(format, value) {
          return '<button title="View Table" class="dbschema-link-btn" data-format="' + format + '" data-value="' + value + '">' +
-            '<i class="fas fa-table"></i></a>';
+            '<i class="fas fa-table"></i></button>';
       };
 
       var getClassViewButton = function(format, value) {
          return '<button title="View Item Type" class="classview-link-btn" data-format="' + format + '" data-value="' + value + '">' +
-            '<i class="fas fa-sitemap"></i></a>';
+            '<i class="fas fa-sitemap"></i></button>';
       };
 
       var objToTable = function(main_header, headers, obj) {
@@ -119,6 +122,13 @@
                $.each(data['searchoptions'], function(i, o) {
                   o.searchid = i;
                });
+               // Display warnings for missing and unlinked search options
+               $.each(data['unlinked_searchoptions'], function(i, o) {
+                  $(`<h4 class="warning">The search option for the field "${o}" does not have a matching DB field</h4>`).appendTo(infoContainer);
+               });
+               $.each(data['missing_searchoptions'], function(i, o) {
+                  $(`<h4 class="warning">The field "${o}" does not have a matching search option</h4>`).appendTo(infoContainer);
+               });
                $(objToTable('Search Options', {
                   searchid: 'Search ID',
                   table: 'Table',
@@ -181,12 +191,16 @@
          self.ajax_root = CFG_GLPI.root_doc + "/plugins/dev/ajax/";
          self.front_root = CFG_GLPI.root_doc + "/plugins/dev/front/";
 
-         var onClassViewLinkBtnClick = function() {
+         var onClassViewLinkBtnClick = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
             var btn = $(this);
             var value = convertSchemaIdentifier(btn.data('format'), 'class_name', btn.data('value'));
             window.location = getClassViewUrl(value);
          };
-         var onDBSchemaLinkBtnClick = function() {
+         var onDBSchemaLinkBtnClick = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
             var btn = $(this);
             var value = convertSchemaIdentifier(btn.data('format'), 'table', btn.data('value'));
             window.location = getDBSchemaUrl(value);
@@ -196,7 +210,7 @@
             var list_items = $("#classview-container .sidebar ul li");
             if (window.location.hash !== null) {
                console.log(list_items.find('a[href="'+window.location.hash+'"]'));
-               self.urlParam('class_name');
+               $.urlParam('class_name');
                list_items.find('a[href="'+window.location.hash+'"]').click();
             }
             $("#classview-container .sidebar input[name='search']").on('input', function(e) {
@@ -241,6 +255,28 @@
             if ($.urlParam('db_name')) {
                self.showDBTableSchema($.urlParam('db_name'));
             }
+         }
+
+         if ($("#devaudit-container").length > 0) {
+            const hide_ok_check = $('#devaudit-container input[name="hide_ok_classes"]');
+            if (hide_ok_check.is(':checked')) {
+               $("#devaudit-container details").filter(function () {
+                  return $(this).attr('data-issue-count') == 0;
+               }).hide();
+            }
+            hide_ok_check.on('click', function(e) {
+               if (hide_ok_check.is(':checked')) {
+                  $("#devaudit-container details").filter(function () {
+                     return $(this).attr('data-issue-count') == 0;
+                  }).hide();
+               } else {
+                  $("#devaudit-container details").filter(function () {
+                     return $(this).attr('data-issue-count') == 0;
+                  }).show();
+               }
+            });
+            $("#devaudit-container .dbschema-link-btn").on('click', onDBSchemaLinkBtnClick);
+            $("#devaudit-container .classview-link-btn").on('click', onClassViewLinkBtnClick);
          }
       };
    };

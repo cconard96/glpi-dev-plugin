@@ -35,6 +35,23 @@
   margin-left: 5px;
 }
 
+#devaudit-container details {
+  margin-bottom: 1em;
+}
+#devaudit-container details summary {
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 0.5em;
+  font-size: 1.2em;
+}
+#devaudit-container details .warning {
+  text-align: left;
+  cursor: default;
+}
+#devaudit-container details ul {
+  list-style-type: decimal;
+}
+
 #themedesigner-results {
   background: white;
   max-height: 200px;
