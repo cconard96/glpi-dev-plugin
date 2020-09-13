@@ -115,6 +115,10 @@ class PluginDevClassviewer extends CommonGLPI {
             $missing_searchopts = array_diff($local_fields, array_column($found_options, 'field'));
          }
 
+         // Ignore is_deleted field. It is depicted differently than other fields.
+         $missing_searchopts = array_filter($missing_searchopts, static function($opt) {
+            return !in_array($opt, ['is_deleted']);
+         });
          return $missing_searchopts;
       } catch (Exception $e) {
          return [];
