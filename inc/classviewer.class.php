@@ -62,7 +62,7 @@ class PluginDevClassviewer extends CommonGLPI {
       echo "<input name='search'/>";
       echo "<ul>";
       foreach ($glpiClasses as $class) {
-         echo "<li><a href='#".$class."'>$class</a></li>";
+         echo "<li><a href='#'>$class</a></li>";
       }
       echo "</ul>";
       echo "</div>";

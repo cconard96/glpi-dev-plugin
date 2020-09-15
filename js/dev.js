@@ -234,6 +234,10 @@
             });
             list_items.on('click', 'a', function(e) {
                self.showClassInfo(e.target.innerText);
+               const searchParams = new URLSearchParams(window.location.search)
+               searchParams.set('class_name', e.target.innerText);
+               const newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
+               history.pushState(null, '', newRelativePathQuery);
             });
             $("#classview-container .info-container").on('click', '.dbschema-link-btn', onDBSchemaLinkBtnClick);
             $("#classview-container .info-container").on('click', '.classview-link-btn', onClassViewLinkBtnClick);
@@ -257,6 +261,10 @@
             });
             list_items.on('click', 'a', function(e) {
                self.showDBTableSchema(e.target.innerText);
+               const searchParams = new URLSearchParams(window.location.search)
+               searchParams.set('db_name', e.target.innerText);
+               const newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
+               history.pushState(null, '', newRelativePathQuery);
             });
             $("#dbschemaview-container .info-container").on('click', '.dbschema-link-btn', onDBSchemaLinkBtnClick);
             $("#dbschemaview-container .info-container").on('click', '.classview-link-btn', onClassViewLinkBtnClick);
