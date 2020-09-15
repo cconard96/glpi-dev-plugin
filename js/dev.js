@@ -179,7 +179,6 @@
                   Null: 'Nullable',
                   Unique: 'Unique'
                }, data['indexes'])).appendTo(infoContainer);
-               console.dir(data);
             },
             error: function() {
                showInfoHeader();
@@ -233,7 +232,7 @@
                });
             });
             list_items.on('click', 'a', function(e) {
-               self.showClassInfo(e.target.innerText);
+               //self.showClassInfo(e.target.innerText);
                const searchParams = new URLSearchParams(window.location.search)
                searchParams.set('class_name', e.target.innerText);
                const newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
@@ -244,6 +243,10 @@
             if ($.urlParam('class_name')) {
                self.showClassInfo($.urlParam('class_name'));
             }
+
+            $(window).on('popstate', function() {
+               self.showClassInfo($.urlParam('class_name'));
+            });
          }
 
          if ($("#dbschemaview-container").length > 0) {
@@ -260,7 +263,7 @@
                });
             });
             list_items.on('click', 'a', function(e) {
-               self.showDBTableSchema(e.target.innerText);
+               //self.showDBTableSchema(e.target.innerText);
                const searchParams = new URLSearchParams(window.location.search)
                searchParams.set('db_name', e.target.innerText);
                const newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
@@ -271,6 +274,10 @@
             if ($.urlParam('db_name')) {
                self.showDBTableSchema($.urlParam('db_name'));
             }
+
+            $(window).on('popstate', function() {
+               self.showDBTableSchema($.urlParam('db_name'));
+            });
          }
 
          if ($("#devaudit-container").length > 0) {

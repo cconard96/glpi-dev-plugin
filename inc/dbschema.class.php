@@ -73,7 +73,7 @@ class PluginDevDbschema extends CommonGLPI {
       echo "<input name='search'/>";
       echo "<ul>";
       foreach ($tables as $table) {
-         echo "<li><a href='#'>$table</a></li>";
+         echo "<li><a href=''>$table</a></li>";
       }
       echo "</ul>";
       echo "</div>";
