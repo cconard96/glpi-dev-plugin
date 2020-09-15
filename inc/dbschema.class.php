@@ -25,7 +25,20 @@ class PluginDevDbschema extends CommonGLPI {
       global $DB;
 
       $schema = $DB->listFields($table);
-      return $schema;
+      // List Indexes
+      /** @var mysqli_result $result */
+      $result = $DB->query("SHOW INDEX FROM $table FROM ".$DB->dbdefault);
+      $indexes = $result->fetch_all(MYSQLI_ASSOC);
+
+      // Cleanup Indexes Data
+      foreach ($indexes as &$index) {
+         $index['Unique'] = !$index['Non_unique'];
+      }
+
+      return [
+         'fields'    => $schema,
+         'indexes'   => $indexes
+      ];
    }
 
    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)

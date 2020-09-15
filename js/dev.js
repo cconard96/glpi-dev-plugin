@@ -171,7 +171,15 @@
                   Key: 'Key Type',
                   Default: 'Default Value',
                   Extra: 'Extra Info'
-               }, data)).appendTo(infoContainer);
+               }, data['fields'])).appendTo(infoContainer);
+               $(objToTable('Table Indexes', {
+                  Key_name: 'Key Name',
+                  Seq_in_index: 'Sequence in Index',
+                  Column_name: 'Column',
+                  Null: 'Nullable',
+                  Unique: 'Unique'
+               }, data['indexes'])).appendTo(infoContainer);
+               console.dir(data);
             },
             error: function() {
                showInfoHeader();
