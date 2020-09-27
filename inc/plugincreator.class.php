@@ -110,6 +110,7 @@ class PluginDevPlugincreator extends CommonGLPI {
       }
       $p['language_short'] = explode('_', $p['language'])[0];
       $p['authors'] = array_map('trim', explode(',', $p['authors']));
+      $p['copyright_header'] = '';
 
       // Set the plugins path
       // Note: Always use plugin directory and not marketplace
@@ -125,6 +126,36 @@ class PluginDevPlugincreator extends CommonGLPI {
       if (!mkdir($plugin_dir) && !is_dir($plugin_dir)) {
          throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir));
       }
+
+
+      // Create LICENSE if we have the template and add a copyright header property
+      if ($p['license']) {
+         $normalized_license_name = preg_replace(['/\s+(\S)/', '/v(\d)/i'],'$1', strtolower($p['license']));
+         $lic_file = __DIR__ . "/../resources/templates/copyright/{$normalized_license_name}_license";
+         $lic_header_file = __DIR__ . "/../resources/templates/copyright/{$normalized_license_name}_header";
+         if (file_exists($lic_file) && file_exists($lic_header_file)) {
+            copy($lic_file, $plugin_dir . '/LICENSE');
+            $p['copyright_header'] = file_get_contents($lic_header_file);
+            $ptokens = ['name', 'authors', 'homepage'];
+            foreach ($ptokens as $ptoken) {
+               $val = $p[$ptoken];
+               if (is_array($val)) {
+                  $val = implode(', ', $val);
+               }
+               $p['copyright_header'] = preg_replace('/\${' . $ptoken . '}/i', $val, $p['copyright_header']);
+            }
+            $p['copyright_header'] = preg_replace('/\${YEAR}/i', date('Y', strtotime($_SESSION['glpi_currenttime'])), $p['copyright_header']);
+         }
+      }
+
+      // Create a metadata file to help this plugin understand the properties of this plugin as well as its code files
+      // Remove these properties before writing the metadata file
+      $meta_tokens_exclude = ['init', 'update', '_glpi_csrf_token'];
+      $metadata = array_diff_key($p, array_flip($meta_tokens_exclude));
+      $meta_file = fopen($plugin_dir . '/.devplugin', 'wb+');
+      fwrite($meta_file, json_encode($metadata, JSON_PRETTY_PRINT));
+      fclose($meta_file);
+      chmod($plugin_dir . '/.devplugin', 0660);
 
       // Create hook.php
       self::initHooks($plugin_dir, $p);
@@ -206,7 +237,8 @@ EOF
       $checkconfig_func = new GlobalFunction("plugin_{$options['identifier']}_check_config");
       $checkconfig_func->setBody('return true;');
       $setup_file = fopen($plugin_dir . '/setup.php', 'wb+');
-      fwrite($setup_file, '<?php' . PHP_EOL . PHP_EOL);
+      fwrite($setup_file, '<?php' . PHP_EOL);
+      fwrite($setup_file, ($options['copyright_header'] ?? '') . PHP_EOL . PHP_EOL);
       fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_VERSION', '{$options['version']}');" . PHP_EOL);
       fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_MIN_GLPI', '{$options['min_glpi']}');" . PHP_EOL);
       fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_MAX_GLPI', '{$options['max_glpi']}');" . PHP_EOL . PHP_EOL);
@@ -226,6 +258,7 @@ EOF
       $uninstall_func->setBody('return true;');
       $hook_file = fopen($plugin_dir . '/hook.php', 'wb+');
       fwrite($hook_file, '<?php' . PHP_EOL);
+      fwrite($hook_file, ($options['copyright_header'] ?? '') . PHP_EOL . PHP_EOL);
       fwrite($hook_file, $install_func . PHP_EOL);
       fwrite($hook_file, $uninstall_func . PHP_EOL);
       fclose($hook_file);
@@ -243,6 +276,7 @@ EOF
       $bootstrap_file = fopen($plugin_dir . '/tests/bootstrap.php', 'wb+');
       fwrite($bootstrap_file, <<<EOF
 <?php
+{$options['copyright_header']}
 
 global \$CFG_GLPI;
 define('GLPI_ROOT', dirname(dirname(dirname(__DIR__))));
@@ -266,6 +300,7 @@ if (!\$plugin->isActivated('{$options['identifier']}')) {
 EOF
       );
       fclose($bootstrap_file);
+      chmod($plugin_dir . '/tests/bootstrap.php', 0660);
    }
 
    private static function initPluginXml($plugin_dir, $options)
@@ -296,6 +331,7 @@ EOF
       $versions = $root->addChild('versions');
       $base_version = $versions->addChild('version');
       $base_version->addChild('num', $options['version']);
+      //FIXME Plugin XML compatibility versions
       $base_version->addChild('compatibility', '>=' . $options['min_glpi'] . ' <' . $options['max_glpi']);
 
       $langs = $root->addChild('langs');
