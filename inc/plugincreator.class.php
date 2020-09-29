@@ -331,7 +331,7 @@ EOF
       $base_version = $versions->addChild('version');
       $base_version->addChild('num', $options['version']);
       //FIXME Plugin XML compatibility versions
-      $base_version->addChild('compatibility', '>=' . $options['min_glpi'] . ' <' . $options['max_glpi']);
+      $base_version->addChild('compatibility', '~' . $options['min_glpi']);
 
       $langs = $root->addChild('langs');
       $langs->addChild('lang', $options['language']);
