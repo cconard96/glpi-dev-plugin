@@ -305,8 +305,7 @@ EOF
 
    private static function initPluginXml($plugin_dir, $options)
    {
-      $xml = new SimpleXMLElement('<xml/>');
-      $root = $xml->addChild('root');
+      $root = new SimpleXMLElement('<root/>');
       $root->addChild('name', $options['name']);
       $root->addChild('key', $options['identifier']);
       $root->addChild('state', 'stable');
