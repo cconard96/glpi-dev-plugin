@@ -371,15 +371,15 @@ EOF
       $migration_file->addComment($options['copyright_header']);
       $migration_class = $migration_file->addClass('Plugin'.ucfirst($options['identifier']).'Migration');
       $migration_class->addComment('Handles migrating between plugin versions');
-      $migration_class->addConstant('BASE_VERSION', '1.0.0');
+      $migration_class->addConstant('BASE_VERSION', '1.0.0')->setPrivate();
       $migration_class->addProperty('glpiMigration')->setProtected()->setComment('@var Migration');
       $migration_class->addProperty('db')->setProtected()->setComment('@var DBmysql');
 
       $constructor = $migration_class->addMethod('__construct');
       $constructor->addParameter('version')->setType('string');
       $constructor->setBody('global $DB;
-      $this->glpiMigration = new Migration($version);
-      $this->db = $DB;');
+$this->glpiMigration = new Migration($version);
+$this->db = $DB;');
 
       $apply_func = $migration_class->addMethod('applyMigrations');
       $apply_func->setPublic();
@@ -424,7 +424,7 @@ if (count($otherMigrationFunctions)) {
       $set_ver_func->setBody('$this->db->updateOrInsert(Config::getTable(), [
    \'value\'     => $version,
    \'context\'   => \'plugin:'.$plugin_identifier.'\',
-   \'name\' => \'plugin_version\'
+   \'name\'      => \'plugin_version\'
 ], [
    \'context\'   => \'plugin:'.$plugin_identifier.'\',
    \'name\'      => \'plugin_version\'
