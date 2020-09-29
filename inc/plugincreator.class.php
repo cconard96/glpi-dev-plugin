@@ -238,7 +238,9 @@ EOF
       $checkconfig_func->setBody('return true;');
       $setup_file = fopen($plugin_dir . '/setup.php', 'wb+');
       fwrite($setup_file, '<?php' . PHP_EOL);
-      fwrite($setup_file, ($options['copyright_header'] ?? '') . PHP_EOL . PHP_EOL);
+      fwrite($setup_file, '/*' . PHP_EOL);
+      fwrite($setup_file, ($options['copyright_header'] ?? '') . PHP_EOL);
+      fwrite($setup_file, '*/' . PHP_EOL . PHP_EOL);
       fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_VERSION', '{$options['version']}');" . PHP_EOL);
       fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_MIN_GLPI', '{$options['min_glpi']}');" . PHP_EOL);
       fwrite($setup_file, "define('PLUGIN_{$uc_identifier}_MAX_GLPI', '{$options['max_glpi']}');" . PHP_EOL . PHP_EOL);
@@ -258,7 +260,9 @@ EOF
       $uninstall_func->setBody('return true;');
       $hook_file = fopen($plugin_dir . '/hook.php', 'wb+');
       fwrite($hook_file, '<?php' . PHP_EOL);
-      fwrite($hook_file, ($options['copyright_header'] ?? '') . PHP_EOL . PHP_EOL);
+      fwrite($hook_file, '/*' . PHP_EOL);
+      fwrite($hook_file, ($options['copyright_header'] ?? '') . PHP_EOL);
+      fwrite($hook_file, '*/' . PHP_EOL . PHP_EOL);
       fwrite($hook_file, $install_func . PHP_EOL);
       fwrite($hook_file, $uninstall_func . PHP_EOL);
       fclose($hook_file);
@@ -276,7 +280,9 @@ EOF
       $bootstrap_file = fopen($plugin_dir . '/tests/bootstrap.php', 'wb+');
       fwrite($bootstrap_file, <<<EOF
 <?php
+/*
 {$options['copyright_header']}
+*/
 
 global \$CFG_GLPI;
 define('GLPI_ROOT', dirname(dirname(dirname(__DIR__))));
