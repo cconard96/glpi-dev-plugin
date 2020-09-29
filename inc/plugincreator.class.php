@@ -75,15 +75,19 @@ class PluginDevPlugincreator extends CommonGLPI {
 
       echo "<table class='tab_cadre_fixe'><thead>";
       echo "<th colspan='4'>" . _x('form_section', 'Generator options', 'dev') . '</th></thead>';
-      echo '<td>' . _x('form_field', 'Use unit tests', 'dev') . '</td>';
+      echo '<tr><td>' . _x('form_field', 'Use unit tests', 'dev') . '</td>';
       echo '<td>';
       Dropdown::showYesNo('use_unit_tests', 1);
       echo '</td>';
       echo '<td>' . _x('form_field', 'Prepare for Plugin Directory and Marketplace', 'dev') . '</td>';
       echo '<td>';
       Dropdown::showYesNo('use_plugin_xml', 1);
-      echo '</td>';
-      echo '</tr>';
+      echo '</td></tr>';
+
+      echo '<tr><td>' . _x('form_field', 'Use plugin migration system', 'dev') . '</td>';
+      echo '<td>';
+      Dropdown::showYesNo('use_migration', 1);
+      echo '</td><td></td><td></td></tr>';
       echo '</table>';
 
       echo "<table class='tab_cadre_fixe'>";
@@ -162,6 +166,9 @@ class PluginDevPlugincreator extends CommonGLPI {
       // Create setup.php
       self::initSetup($plugin_dir, $p);
 
+      // Add common directories
+      self::initStructure($plugin_dir, $p);
+
       // Init tests if that generator option was selected
       if ($p['use_unit_tests']) {
          self::initTests($plugin_dir, $p);
@@ -171,8 +178,9 @@ class PluginDevPlugincreator extends CommonGLPI {
          self::initPluginXml($plugin_dir, $p);
       }
 
-      // Add common directories
-      self::initStructure($plugin_dir, $p);
+      if ($p['use_migration']) {
+         self::initMigrationClass($plugin_dir, $p);
+      }
 
       return true;
    }
@@ -350,8 +358,82 @@ EOF
       $root->addChild('screenshots');
 
       $plugin_xml_file = fopen($plugin_dir . "/{$options['identifier']}.xml", 'wb+');
-      fwrite($plugin_xml_file, $xml->asXML());
+      fwrite($plugin_xml_file, $root->asXML());
       fclose($plugin_xml_file);
       chmod($plugin_dir . '/hook.php', 0660);
+   }
+
+   private static function initMigrationClass($plugin_dir, $options)
+   {
+      $plugin_identifier = $options['identifier'];
+
+      $migration_file = new PhpFile();
+      $migration_file->addComment($options['copyright_header']);
+      $migration_class = $migration_file->addClass('Plugin'.ucfirst($options['identifier']).'Migration');
+      $migration_class->addComment('Handles migrating between plugin versions');
+      $migration_class->addConstant('BASE_VERSION', '1.0.0');
+      $migration_class->addProperty('glpiMigration')->setProtected()->setComment('@var Migration');
+      $migration_class->addProperty('db')->setProtected()->setComment('@var DBmysql');
+
+      $constructor = $migration_class->addMethod('__construct');
+      $constructor->addParameter('version')->setType('string');
+      $constructor->setBody('global $DB;
+      $this->glpiMigration = new Migration($version);
+      $this->db = $DB;');
+
+      $apply_func = $migration_class->addMethod('applyMigrations');
+      $apply_func->setPublic();
+      $apply_func->setBody('$rc = new ReflectionClass($this);
+$otherMigrationFunctions = array_map(static function ($rm) use ($rc) {
+   return $rm->getShortName();
+}, array_filter($rc->getMethods(), static function ($m) {
+   return preg_match(\'/(?<=^apply_)(.*)(?=_migration$)/\', $m->getShortName());
+}));
+
+if (count($otherMigrationFunctions)) {
+   // Map versions to functions
+   $versionMap = [];
+   foreach ($otherMigrationFunctions as $function) {
+      $ver = str_replace([\'apply_\', \'_migration\', \'_\'], [\'\', \'\', \'.\'], $function);
+      $versionMap[$ver] = $function;
+   }
+
+   // Sort semantically
+   uksort($versionMap, \'version_compare\');
+
+   // Get last known recorded version. If none exists, assume this is 1.0.0 (start migration from beginning).
+   // Migrations should be replayable so nothing should be lost on multiple runs.
+   $lastKnownVersion = Config::getConfigurationValues(\'plugin:'.$plugin_identifier.'\')[\'plugin_version\'] ?? self::BASE_VERSION;
+
+   // Call each migration in order starting from the last known version
+   foreach ($versionMap as $version => $func) {
+      // Last known version is the same or greater than release version
+      if (version_compare($lastKnownVersion, $version, \'<=\')) {
+         $this->$func();
+         $this->glpiMigration->executeMigration();
+         if ($version !== self::BASE_VERSION) {
+            $this->setPluginVersionInDB($version);
+            $lastKnownVersion = $version;
+         }
+      }
+   }
+}');
+
+      $set_ver_func = $migration_class->addMethod('setPluginVersionInDB')->setPrivate();
+      $set_ver_func->addParameter('version');
+      $set_ver_func->setBody('$this->db->updateOrInsert(Config::getTable(), [
+   \'value\'     => $version,
+   \'context\'   => \'plugin:'.$plugin_identifier.'\',
+   \'name\' => \'plugin_version\'
+], [
+   \'context\'   => \'plugin:'.$plugin_identifier.'\',
+   \'name\'      => \'plugin_version\'
+]);');
+
+      $migration_class->addMethod('apply_1_0_0_migration')->setPrivate()->addComment('Apply the migrations for the base plugin version (1.0.0).');
+      $file = fopen($plugin_dir . '/inc/migration.class.php', 'wb+');
+      fwrite($file, $migration_file);
+      fclose($file);
+      chmod($plugin_dir . '/inc/migration.class.php', 0660);
    }
 }
