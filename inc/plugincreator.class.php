@@ -127,7 +127,6 @@ class PluginDevPlugincreator extends CommonGLPI {
          throw new \RuntimeException(sprintf('Directory "%s" was not created', $plugin_dir));
       }
 
-
       // Create LICENSE if we have the template and add a copyright header property
       if ($p['license']) {
          $normalized_license_name = preg_replace(['/\s+(\S)/', '/v(\d)/i'],'$1', strtolower($p['license']));
@@ -198,11 +197,12 @@ EOF
       );
       $uc_identifier = strtoupper($options['identifier']);
       $version_func = new GlobalFunction("plugin_version_{$options['identifier']}");
+      $authors = implode(', ', $options['authors']);
       $version_func->setBody(<<<EOF
 return [
       'name'         => __('{$options['name']}', '{$options['identifier']}'),
       'version'      => PLUGIN_{$uc_identifier}_VERSION,
-      'author'       => '{$options['author']}',
+      'author'       => '{$authors}',
       'license'      => '{$options['license']}',
       'homepage'     =>'{$options['homepage']}',
       'requirements' => [
