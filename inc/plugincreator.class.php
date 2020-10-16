@@ -112,6 +112,9 @@ class PluginDevPlugincreator extends CommonGLPI {
       if ($p['identifier'] === null) {
          $p['identifier'] = str_replace(' ', '', strtolower($p['name']));
       }
+      if (empty($p['identifier'])) {
+         return false;
+      }
       $p['language_short'] = explode('_', $p['language'])[0];
       $p['authors'] = array_map('trim', explode(',', $p['authors']));
       $p['copyright_header'] = '';
@@ -208,38 +211,38 @@ EOF
       $authors = implode(', ', $options['authors']);
       $version_func->setBody(<<<EOF
 return [
-      'name'         => __('{$options['name']}', '{$options['identifier']}'),
-      'version'      => PLUGIN_{$uc_identifier}_VERSION,
-      'author'       => '{$authors}',
-      'license'      => '{$options['license']}',
-      'homepage'     =>'{$options['homepage']}',
-      'requirements' => [
-         'glpi'   => [
-            'min' => PLUGIN_{$uc_identifier}_MIN_GLPI,
-            'max' => PLUGIN_{$uc_identifier}_MAX_GLPI
-         ]
+   'name'         => __('{$options['name']}', '{$options['identifier']}'),
+   'version'      => PLUGIN_{$uc_identifier}_VERSION,
+   'author'       => '{$authors}',
+   'license'      => '{$options['license']}',
+   'homepage'     =>'{$options['homepage']}',
+   'requirements' => [
+      'glpi'   => [
+         'min' => PLUGIN_{$uc_identifier}_MIN_GLPI,
+         'max' => PLUGIN_{$uc_identifier}_MAX_GLPI
       ]
-   ];
+   ]
+];
 EOF
       );
       $prerequisites_func = new GlobalFunction("plugin_{$options['identifier']}_check_prerequisites");
       $prerequisites_func->setBody(<<<EOF
 if (!method_exists('Plugin', 'checkGlpiVersion')) {
-      \$version = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
-      \$matchMinGlpiReq = version_compare(\$version, PLUGIN_{$uc_identifier}_MIN_GLPI, '>=');
-      \$matchMaxGlpiReq = version_compare(\$version, PLUGIN_{$uc_identifier}_MAX_GLPI, '<');
-      if (!\$matchMinGlpiReq || !\$matchMaxGlpiReq) {
-         echo vsprintf(
-            'This plugin requires GLPI >= %1\$s and < %2\$s.',
-            [
-               PLUGIN_{$uc_identifier}_MIN_GLPI,
-               PLUGIN_{$uc_identifier}_MAX_GLPI,
-            ]
-         );
-         return false;
-      }
+   \$version = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
+   \$matchMinGlpiReq = version_compare(\$version, PLUGIN_{$uc_identifier}_MIN_GLPI, '>=');
+   \$matchMaxGlpiReq = version_compare(\$version, PLUGIN_{$uc_identifier}_MAX_GLPI, '<');
+   if (!\$matchMinGlpiReq || !\$matchMaxGlpiReq) {
+      echo vsprintf(
+         'This plugin requires GLPI >= %1\$s and < %2\$s.',
+         [
+            PLUGIN_{$uc_identifier}_MIN_GLPI,
+            PLUGIN_{$uc_identifier}_MAX_GLPI,
+         ]
+      );
+      return false;
    }
-   return true;
+}
+return true;
 EOF
       );
       $checkconfig_func = new GlobalFunction("plugin_{$options['identifier']}_check_config");
