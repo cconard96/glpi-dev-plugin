@@ -265,8 +265,19 @@ EOF
 
    private static function initHooks($plugin_dir, $options)
    {
+      $uc_identifier = strtoupper($options['identifier']);
+      $migration_class = 'Plugin'.ucfirst($options['identifier']).'Migration';
       $install_func = new GlobalFunction("plugin_{$options['identifier']}_install");
-      $install_func->setBody('return true;');
+      if ($options['use_migration']) {
+         $install_func->setBody(<<<EOF
+\$migration = new {$migration_class}(PLUGIN_{$uc_identifier}_VERSION);
+\$migration->applyMigrations();
+return true;
+EOF
+         );
+      } else {
+         $install_func->setBody('return true;');
+      }
       $uninstall_func = new GlobalFunction("plugin_{$options['identifier']}_uninstall");
       $uninstall_func->setBody('return true;');
       $hook_file = fopen($plugin_dir . '/hook.php', 'wb+');
