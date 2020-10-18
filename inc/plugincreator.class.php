@@ -137,6 +137,7 @@ class PluginDevPlugincreator extends CommonGLPI {
       // Create LICENSE if we have the template and add a copyright header property
       if ($p['license']) {
          $normalized_license_name = preg_replace(['/\s+(\S)/', '/v(\d)/i'],'$1', strtolower($p['license']));
+         $normalized_license_name = str_replace('+', '', $normalized_license_name);
          $lic_file = __DIR__ . "/../resources/templates/copyright/{$normalized_license_name}_license";
          $lic_header_file = __DIR__ . "/../resources/templates/copyright/{$normalized_license_name}_header";
          if (file_exists($lic_file) && file_exists($lic_header_file)) {
