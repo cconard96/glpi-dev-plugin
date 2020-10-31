@@ -1,4 +1,5 @@
 # GLPI Development Helper Plugin
+[![CodeFactor](https://www.codefactor.io/repository/github/cconard96/glpi-dev-plugin/badge)](https://www.codefactor.io/repository/github/cconard96/glpi-dev-plugin)
 
 Provides a few tools to help GLPI and GLPI plugin developers.
 
