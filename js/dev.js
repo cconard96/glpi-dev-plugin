@@ -216,7 +216,6 @@
          if ($("#classview-container").length > 0) {
             var list_items = $("#classview-container .sidebar ul li");
             if (window.location.hash !== null) {
-               console.log(list_items.find('a[href="'+window.location.hash+'"]'));
                $.urlParam('class_name');
                list_items.find('a[href="'+window.location.hash+'"]').click();
             }
