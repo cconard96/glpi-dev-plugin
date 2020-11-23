@@ -7,7 +7,11 @@ define('PLUGIN_DEV_MAX_GLPI', '11.0.0');
 function plugin_init_dev() {
    global $PLUGIN_HOOKS;
    $PLUGIN_HOOKS['csrf_compliant']['dev'] = true;
-   $PLUGIN_HOOKS['add_css']['dev'][] = 'css/dev.css';
+   if ($_SESSION['glpipalette'] === 'darker') {
+      $PLUGIN_HOOKS['add_css']['dev'][] = 'css/dev-dark.css';
+   } else {
+      $PLUGIN_HOOKS['add_css']['dev'][] = 'css/dev.css';
+   }
    $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/dev.js';
    $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/themedesigner.js';
 

@@ -1,0 +1,52 @@
+@import "dev";
+
+table.plugin-dev-menu {
+   tr td a:hover {
+      color: #DDDDDD;
+   }
+}
+#classview-container, #dbschemaview-container {
+   .sidebar {
+      input[name='search'] {
+         &:focus {
+            outline: none;
+         }
+      }
+      background-color: #242323;
+      li a:hover {
+         color: #DDDDDD;
+      }
+   }
+
+   .info-container {
+      background-color: transparent;
+
+      button {
+         background: #242323;
+         border: 1px solid #AAAAAA;
+         .fas {
+            color: #AAAAAA;
+         }
+      }
+   }
+}
+
+#devaudit-container {
+   details {
+
+      summary {
+         border: 1px solid #242323;
+         button {
+            background: #242323;
+            border: 1px solid #AAAAAA;
+            .fas {
+               color: #AAAAAA;
+            }
+         }
+      }
+   }
+}
+
+#themedesigner-results {
+   background: #242323;
+}

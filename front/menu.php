@@ -21,7 +21,7 @@ if (Session::haveRight('config', UPDATE) && $_SESSION['glpi_use_mode'] == Sessio
 }
 
 if (count($links)) {
-   echo "<div class='center'><table class='tab_cadre'>";
+   echo "<div class='center'><table class='tab_cadre plugin-dev-menu'>";
    echo "<thead><th>"._x('plugin_info', 'GLPI Development Helper', 'dev')."</th></thead>";
    echo "<tbody>";
    foreach ($links as $link) {
