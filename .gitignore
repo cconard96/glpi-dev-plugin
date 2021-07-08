@@ -1,1 +1,3 @@
 vendor/*
+var/profiler_sessions/*
+!var/profiler_sessions/.gitkeep
