@@ -320,6 +320,24 @@ class GlpiDevAuditViewer {
    }
 }
 
+class GlpiDevProfiler extends GlpiDevView {
+
+   static init() {
+      if ($("#devprofiler-container").length > 0) {
+         const container = $("#devprofiler-container");
+         const log_select = container.find('select').eq(0);
+         const session_select = container.find('select').eq(1);
+
+         log_select.on('change', (e) => {
+            window.location = this.front_root + "profiler.php?log=" + e.target.value;
+         });
+         session_select.on('change', (e) => {
+            window.location = this.front_root + "profiler.php?log=" + log_select.val() + "&session=" + e.target.value;
+         });
+      }
+   }
+}
+
 class GlpiDevHelper {
 
    static init() {
@@ -333,6 +351,7 @@ class GlpiDevHelper {
       GlpiDevClassViewer.init();
       GlpiDevDBViewer.init();
       GlpiDevAuditViewer.init();
+      GlpiDevProfiler.init();
    }
 }
 

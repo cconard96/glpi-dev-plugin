@@ -18,6 +18,8 @@ if (Session::haveRight('config', UPDATE) && $_SESSION['glpi_use_mode'] == Sessio
       "{$CFG_GLPI['root_doc']}/plugins/dev/front/plugincreator.form.php");
    $links[] = Html::link(_x('action', PluginDevThemedesigner::getTypeName(), 'dev'),
       "{$CFG_GLPI['root_doc']}/plugins/dev/front/themedesigner.php");
+   $links[] = Html::link(_x('action', PluginDevProfiler::getTypeName(), 'dev'),
+      "{$CFG_GLPI['root_doc']}/plugins/dev/front/profiler.php");
 }
 
 if (count($links)) {
