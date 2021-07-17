@@ -14,19 +14,24 @@ class PluginDevProfiler extends CommonGLPI {
    /** @var PluginDevProfilerSection[] */
    private static $current_sections = [];
 
+   public static $disabled = false;
+
    public static function getTypeName($nb = 0)
    {
       return _x('tool', 'Profiler', 'dev');
    }
 
    public static function start(string $name, string $category = 'core'): void {
+      if (self::$disabled) {
+         return;
+      }
       if (array_key_exists($name, self::$current_sections)) {
          \Toolbox::logWarning("Profiler section $name already started");
          return;
       }
       if (self::$session_start === null) {
          self::$session_start = new \DateTime('now');
-         self::$session_uuid = \Ramsey\Uuid\Uuid::uuid4();//uniqid('', true);
+         self::$session_uuid = session_id() ?? (string) \Ramsey\Uuid\Uuid::uuid4();//uniqid('', true);
       }
       self::$current_sections[$name] = new PluginDevProfilerSection($category, microtime(true) * 1000);
       self::logProfilerSession("[$category]\tStarted section $name");

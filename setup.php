@@ -6,7 +6,14 @@ define('PLUGIN_DEV_MAX_GLPI', '11.0.0');
 
 function plugin_init_dev() {
    global $PLUGIN_HOOKS;
+
    $PLUGIN_HOOKS['csrf_compliant']['dev'] = true;
+
+   if (str_contains($_SERVER['SCRIPT_NAME'], '/plugins/dev/') || str_contains($_SERVER['SCRIPT_NAME'], '/marketplace/dev/') ||
+      str_contains($_SERVER['HTTP_REFERER'], '/plugins/dev/') || str_contains($_SERVER['HTTP_REFERER'], '/marketplace/dev/')) {
+      PluginDevProfiler::$disabled = true;
+   }
+
    if (!isCommandLine() && $_SESSION['glpipalette'] === 'darker') {
       $PLUGIN_HOOKS['add_css']['dev'][] = 'css/dev-dark.css';
    } else {
