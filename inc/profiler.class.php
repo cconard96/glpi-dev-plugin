@@ -1,5 +1,7 @@
 <?php
 
+use Mexitek\PHPColors\Color;
+
 class PluginDevProfiler extends CommonGLPI {
 
    /** @var DateTime */
@@ -177,7 +179,7 @@ class PluginDevProfiler extends CommonGLPI {
       $output .= "</select>";
 
       $output .= <<<HTML
-<table class="table card-table table-hover">
+<table class="table table-striped card-table table-hover">
     <thead>
         <tr>
            <th>Category</th>
@@ -189,6 +191,23 @@ class PluginDevProfiler extends CommonGLPI {
     </thead>
     <tbody>
 HTML;
+
+      // Store colors to avoid re-calculation during the same request. Predefined some colors.
+      $category_colors = [
+         'core'   => new Color('526dad'),
+         'db'     => new Color('9252ad'),
+         'twig'   => new Color('64ad52'),
+      ];
+      $calc_color = static function($str) {
+         $code = dechex(crc32($str));
+         $code = substr($code, 0, 6);
+         try {
+            return new Color($code);
+         } catch (Exception $e) {
+            return substr(dechex(mt_rand()), 0, 6);
+         }
+      };
+
       foreach ($sessions as $session_id => $events) {
          if ($session_id !== $selected_session) {
             continue;
@@ -200,7 +219,17 @@ HTML;
             $end = $event['end'] ?? '';
             $duration = $event['duration'] ?? '';
 
-            $output .= "<tr><td>{$category}</td><td>{$name}</td><td>{$start}</td><td>{$end}</td><td>{$duration}</td></tr>";
+            // Calculate color if needed
+            if (!isset($category_colors[$category])) {
+               $category_colors[$category] = $calc_color($category);
+            }
+
+            $bg_color = '#'.$category_colors[$category]->getHex();
+            $fg_color = $category_colors[$category]->isLight() ? 'var(--dark)' : 'var(--light)';
+            $output .= "<tr>
+                <td><span style='padding: 5px; border-radius: 25%; background-color: {$bg_color}; color: {$fg_color}'>{$category}</span></td>
+                <td>{$name}</td><td>{$start}</td><td>{$end}</td><td>{$duration}</td>
+            </tr>";
          }
       }
       $output .= '</tbody></table>';
