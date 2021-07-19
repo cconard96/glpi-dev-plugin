@@ -465,4 +465,22 @@ if (count($otherMigrationFunctions)) {
          return file_exists(Plugin::getPhpDir($plugin) . '/.devplugin');
       });
    }
+
+   public static function showEditor($plugin_id): void {
+      $css_files = array_map(static function($f) {
+         return basename($f);
+      }, glob(Plugin::getPhpDir($plugin_id) . '/css/*.{css,scss}'));
+      $js_files = array_map(static function($f) {
+         return basename($f);
+      }, glob(Plugin::getPhpDir($plugin_id) . '/js/*.js'));
+
+      PluginDevToolbox::getTwig()->display('plugin_editor.html.twig', [
+         'plugin'       => Plugin::getInfo($plugin_id),
+         'plugin_dir'   => $plugin_id,
+         'assets'       => [
+            'css' => $css_files,
+            'js'  => $js_files
+         ]
+      ]);
+   }
 }

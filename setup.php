@@ -6,7 +6,9 @@ define('PLUGIN_DEV_MAX_GLPI', '11.0.0');
 
 function plugin_init_dev() {
    global $PLUGIN_HOOKS;
+
    $PLUGIN_HOOKS['csrf_compliant']['dev'] = true;
+
    if ($_SESSION['glpipalette'] === 'darker') {
       $PLUGIN_HOOKS['add_css']['dev'][] = 'css/dev-dark.css';
    } else {
@@ -23,6 +25,10 @@ function plugin_init_dev() {
       Plugin::registerClass(PluginDevClassviewer::class, [
          'addtabon'  => get_declared_classes()
       ]);
+
+      if (strpos($_SERVER['REQUEST_URI'], 'plugin.php') !== false) {
+         $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/plugin_list.js';
+      }
    }
 }
 

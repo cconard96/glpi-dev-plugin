@@ -1,0 +1,45 @@
+<div class="plugin-editor">
+   <h1>Plugin Editor: {{ plugin.name }}</h1>
+   <details>
+      <summary>
+         Assets
+      </summary>
+      <table class="table table-striped">
+         <thead>
+            <tr>
+               <td>Type</td>
+               <td>File</td>
+               <td>Actions</td>
+            </tr>
+         </thead>
+         <tbody>
+            {% for asset in assets.css %}
+               <tr>
+                  <td>Stylesheet</td>
+                  <td>{{ asset }}</td>
+                  <td>
+                     <a class="pointer" href="#">
+                        <span class="fas fa-pencil-alt fa-fw fa-2x" title="Edit">
+                           <span class="sr-only">Edit</span>
+                        </span>
+                     </a>
+                  </td>
+               </tr>
+            {% endfor %}
+            {% for asset in assets.js %}
+               <tr>
+                  <td>Script</td>
+                  <td>{{ asset }}</td>
+                  <td>
+                     <a class="pointer" href="#">
+                        <span class="fas fa-pencil-alt fa-fw fa-2x" title="Edit">
+                           <span class="sr-only">Edit</span>
+                        </span>
+                     </a>
+                  </td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+   </details>
+</div>
