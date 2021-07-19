@@ -34,7 +34,7 @@
          plugins = Object.values(plugins);
       }
       injectControls(plugins);
-      $(document).on('search_refresh', '#massformPlugin', () => {
+      $(document).on('search_refresh', '#massformPlugin .search-results', () => {
          injectControls(plugins);
       });
    });

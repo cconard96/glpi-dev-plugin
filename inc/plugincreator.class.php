@@ -467,9 +467,11 @@ if (count($otherMigrationFunctions)) {
    }
 
    public static function showEditor($plugin_id): void {
+      global $CFG_GLPI;
+
       $css_files = array_map(static function($f) {
          return basename($f);
-      }, glob(Plugin::getPhpDir($plugin_id) . '/css/*.{css,scss}'));
+      }, glob(Plugin::getPhpDir($plugin_id) . '/css/*.{css,scss}', GLOB_BRACE));
       $js_files = array_map(static function($f) {
          return basename($f);
       }, glob(Plugin::getPhpDir($plugin_id) . '/js/*.js'));
@@ -480,7 +482,8 @@ if (count($otherMigrationFunctions)) {
          'assets'       => [
             'css' => $css_files,
             'js'  => $js_files
-         ]
+         ],
+         'dev_plugin_root' => Plugin::getWebDir('dev')
       ]);
    }
 }
