@@ -60,6 +60,23 @@
   margin: auto;
 }
 
+/** Plugin CSS form */
+.plugin_css_container {
+  max-width: 100%;
+  width: 100%;
+}
+
+.plugin_css_container .CodeMirror {
+  box-sizing: border-box;
+  height: calc(100vh - 180px);
+  width: 100%;
+}
+
+.plugin_css_container .CodeMirror.input-disabled {
+  background: #ebebe4;
+  /* default bg color for disabled inputs */
+}
+
 table.plugin-dev-menu tr td a:hover {
   color: #DDDDDD;
 }

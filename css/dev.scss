@@ -69,3 +69,17 @@
    width: 80%;
    margin: auto;
 }
+
+/** Plugin CSS form */
+.plugin_css_container {
+   max-width: 100%;
+   width: 100%;
+}
+.plugin_css_container .CodeMirror {
+   box-sizing: border-box;
+   height: calc(100vh - 180px);
+   width: 100%;
+}
+.plugin_css_container .CodeMirror.input-disabled {
+   background: rgb(235, 235, 228); /* default bg color for disabled inputs */
+}

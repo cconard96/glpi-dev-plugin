@@ -451,4 +451,18 @@ if (count($otherMigrationFunctions)) {
       fclose($file);
       chmod($plugin_dir . '/inc/migration.class.php', 0660);
    }
+
+   /**
+    * Find all plugins that can be edited using the GUI.
+    *
+    * Editable plugins must have the `.devplugin` file present.
+    * @return array
+    */
+   public static function getEditablePlugins(): array
+   {
+      $all_enabled = Plugin::getPlugins();
+      return array_filter($all_enabled, static function($plugin) {
+         return file_exists(Plugin::getPhpDir($plugin) . '/.devplugin');
+      });
+   }
 }
