@@ -9,7 +9,7 @@ function plugin_init_dev() {
 
    $PLUGIN_HOOKS['csrf_compliant']['dev'] = true;
 
-   if (str_contains($_SERVER['SCRIPT_NAME'], '/plugins/dev/') || str_contains($_SERVER['SCRIPT_NAME'], '/marketplace/dev/') ||
+   if (!isset($_SERVER['SCRIPT_NAME'], $_SERVER['HTTP_REFERER']) || str_contains($_SERVER['SCRIPT_NAME'], '/plugins/dev/') || str_contains($_SERVER['SCRIPT_NAME'], '/marketplace/dev/') ||
       str_contains($_SERVER['HTTP_REFERER'], '/plugins/dev/') || str_contains($_SERVER['HTTP_REFERER'], '/marketplace/dev/')) {
       PluginDevProfiler::$disabled = true;
    }
