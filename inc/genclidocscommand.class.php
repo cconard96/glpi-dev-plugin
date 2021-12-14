@@ -96,7 +96,7 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
                   $opt_default = $opt->getDefault();
                   $opt_is_required = $opt->isValueRequired();
 
-                  $opt_names = "``-$opt_shortcut``, ``--$opt_name``";
+                  $opt_names = (!empty($opt_shortcut) ? "``-$opt_shortcut``, " : '')."``--$opt_name``";
                   echo "- $opt_names " . ($opt_is_required ? '(required) ' : '') . "- $opt_description (" . ($opt_default ? 'default = '.$opt_default : 'no default') .")\n";
                }
                echo "\n";
