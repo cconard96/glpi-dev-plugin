@@ -39,12 +39,17 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
       echo "===========================\n\n";
       echo "GLPI includes a CLI tool to help you to manage your GLPI instance.\n";
       echo "This interface is provided by the `bin/console` script which can be run from the root of your GLPI directory.\n\n";
+      echo "Each command may have zero or more arguments or options.\n";
+      echo "Arguments are positional pieces of information while options are not and are prefixed by one or two hyphens\n\n";
+
       foreach ($commands as $command) {
          $name = $command->getName();
          $description = $command->getDescription();
          $help = $command->getHelp();
          $aliases = $command->getAliases();
          $usages = $command->getUsages();
+
+         $definition = $command->getDefinition();
 
          $name_length = strlen($name);
 
@@ -55,8 +60,53 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
          } else {
             echo "Aliases: `None`\n\n";
          }
+
          echo "Description\n***********\n\n";
          echo $description."\n\n";
+
+         $args = $definition->getArguments();
+         $arg_count = count($args);
+         $opts = $definition->getOptions();
+         $opt_count = count($opts);
+
+         if ($arg_count || $opt_count) {
+            echo "Arguments/Options\n****************\n\n";
+
+            if ($arg_count) {
+               echo "Arguments (in order):\n\n";
+               foreach ($args as $arg) {
+                  $arg_name = $arg->getName();
+                  $arg_description = $arg->getDescription();
+                  $arg_default = $arg->getDefault();
+                  $arg_is_required = $arg->isRequired();
+
+                  echo "- ``$arg_name`` " . ($arg_is_required ? '(required) ' : '') . "- $arg_description (" . ($arg_default ? 'default = '.$arg_default : 'no default') .")\n";
+               }
+               echo "\n";
+            } else {
+               echo "There are no arguments for this command\n\n";
+            }
+
+            if ($opt_count) {
+               echo "Options:\n\n";
+               foreach ($opts as $opt) {
+                  $opt_shortcut = $opt->getShortcut();
+                  $opt_name = $opt->getName();
+                  $opt_description = $opt->getDescription();
+                  $opt_default = $opt->getDefault();
+                  $opt_is_required = $opt->isValueRequired();
+
+                  $opt_names = "``-$opt_shortcut``, ``--$opt_name``";
+                  echo "- $opt_names " . ($opt_is_required ? '(required) ' : '') . "- $opt_description (" . ($opt_default ? 'default = '.$opt_default : 'no default') .")\n";
+               }
+               echo "\n";
+            } else {
+               echo "There are no options for this command\n\n";
+            }
+         } else {
+            echo "\n\n";
+         }
+
          if (!empty($help)) {
             echo "Help\n****\n\n";
             echo $help . "\n\n";
