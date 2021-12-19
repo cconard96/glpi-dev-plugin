@@ -1,5 +1,8 @@
 <?php
 
+use CJDevStudios\RSTGen\Components\Table\HeaderRow;
+use CJDevStudios\RSTGen\Components\Table\Row;
+use CJDevStudios\RSTGen\Components\Table\Table;
 use Glpi\Console\AbstractCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,6 +29,9 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
    }
 
    protected function execute(InputInterface $input, OutputInterface $output) {
+      // Require the autoloader
+      require_once Plugin::getPhpDir('dev') . '/vendor/autoload.php';
+
       $cli = $this->getApplication();
       $commands = $cli->all($input->getOption('namespace'));
 
@@ -33,14 +39,14 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
          return strcmp($a->getName(), $b->getName());
       });
 
-      ob_start();
+      $o = '';
 
-      echo "GLPI command-line interface\n";
-      echo "===========================\n\n";
-      echo "GLPI includes a CLI tool to help you to manage your GLPI instance.\n";
-      echo "This interface is provided by the `bin/console` script which can be run from the root of your GLPI directory.\n\n";
-      echo "Each command may have zero or more arguments or options.\n";
-      echo "Arguments are positional pieces of information while options are not and are prefixed by one or two hyphens\n\n";
+      $o .= "GLPI command-line interface\n";
+      $o .= "===========================\n\n";
+      $o .= "GLPI includes a CLI tool to help you to manage your GLPI instance.\n";
+      $o .= "This interface is provided by the `bin/console` script which can be run from the root of your GLPI directory.\n\n";
+      $o .= "Each command may have zero or more arguments or options.\n";
+      $o .= "Arguments are positional pieces of information while options are not and are prefixed by one or two hyphens\n\n";
 
       foreach ($commands as $command) {
          $name = $command->getName();
@@ -53,16 +59,16 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
 
          $name_length = strlen($name);
 
-         echo $name."\n";
-         echo str_repeat("-", $name_length)."\n\n";
+         $o .= $name."\n";
+         $o .= str_repeat("-", $name_length)."\n\n";
          if (count($aliases)) {
-            echo 'Aliases: `' . implode(', ', $aliases) . "`\n\n";
+            $o .= 'Aliases: `' . implode(', ', $aliases) . "`\n\n";
          } else {
-            echo "Aliases: `None`\n\n";
+            $o .= "Aliases: `None`\n\n";
          }
 
-         echo "Description\n***********\n\n";
-         echo $description."\n\n";
+         $o .= "Description\n***********\n\n";
+         $o .= $description."\n\n";
 
          $args = $definition->getArguments();
          $arg_count = count($args);
@@ -70,59 +76,75 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
          $opt_count = count($opts);
 
          if ($arg_count || $opt_count) {
-            echo "Arguments/Options\n****************\n\n";
+            $o .= "Arguments/Options\n*****************\n\n";
 
             if ($arg_count) {
-               echo "Arguments (in order):\n\n";
-               foreach ($args as $arg) {
-                  $arg_name = $arg->getName();
-                  $arg_description = $arg->getDescription();
-                  $arg_default = $arg->getDefault();
-                  $arg_is_required = $arg->isRequired();
+               $o .= "Arguments (in order):\n\n";
 
-                  echo "- ``$arg_name`` " . ($arg_is_required ? '(required) ' : '') . "- $arg_description (" . ($arg_default ? 'default = '.$arg_default : 'no default') .")\n";
+               $args_table = new Table();
+               $args_table->addHeaderRow(new HeaderRow([
+                  'name' => 'Name',
+                  'description' => 'Description',
+                  'required' => 'Required',
+                  'default' => 'Default',
+               ]));
+               foreach ($args as $arg) {
+                  $args_table->addBodyRow(new Row([
+                     'name' => $arg->getName(),
+                     'description' => $arg->getDescription(),
+                     'required' => $arg->isRequired() ? 'Yes' : 'No',
+                     'default' => $arg->getDefault(),
+                  ]));
                }
-               echo "\n";
+               $o .= $args_table->render();
+               $o .= "\n\n";
             } else {
-               echo "There are no arguments for this command\n\n";
+               $o .= "There are no arguments for this command\n\n";
             }
 
             if ($opt_count) {
-               echo "Options:\n\n";
-               foreach ($opts as $opt) {
-                  $opt_shortcut = $opt->getShortcut();
-                  $opt_name = $opt->getName();
-                  $opt_description = $opt->getDescription();
-                  $opt_default = $opt->getDefault();
-                  $opt_is_required = $opt->isValueRequired();
+               $o .= "Options:\n\n";
 
-                  $opt_names = (!empty($opt_shortcut) ? "``-$opt_shortcut``, " : '')."``--$opt_name``";
-                  echo "- $opt_names " . ($opt_is_required ? '(required) ' : '') . "- $opt_description (" . ($opt_default ? 'default = '.$opt_default : 'no default') .")\n";
+               $opts_table = new Table();
+               $opts_table->addHeaderRow(new HeaderRow([
+                  'name' => 'Name',
+                  'shortcut' => 'Shortcut',
+                  'description' => 'Description',
+                  'required' => 'Required',
+                  'default' => 'Default',
+               ]));
+               foreach ($opts as $opt) {
+                  $opts_table->addBodyRow(new Row([
+                     'name' => $opt->getName(),
+                     'shortcut' => $opt->getShortcut() ?? '',
+                     'description' => $opt->getDescription(),
+                     'required' => $opt->isValueRequired() ? 'Yes' : 'No',
+                     'default' => $opt->getDefault(),
+                  ]));
                }
-               echo "\n";
+               $o .= $opts_table->render();
+               $o .= "\n\n";
             } else {
-               echo "There are no options for this command\n\n";
+               $o .= "There are no options for this command\n\n";
             }
          } else {
-            echo "\n\n";
+            $o .= "\n\n";
          }
 
          if (!empty($help)) {
-            echo "Help\n****\n\n";
-            echo $help . "\n\n";
+            $o .= "Help\n****\n\n";
+            $o .= $help . "\n\n";
          }
 
          if (count($usages)) {
-            echo "Usage\n*****\n\n";
+            $o .= "Usage\n*****\n\n";
             foreach ($usages as $usage) {
-               echo ' - '.$usage . "\n";
+               $o .= ' - '.$usage . "\n";
             }
          }
 
-         echo "\n";
+         $o .= "\n";
       }
-
-      $o = ob_get_clean();
 
       if ($file = $input->getOption('file')) {
          $overwrite = false;
@@ -141,6 +163,9 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
             $output->writeln('File ' . ($overwrite ? 'rewritten' : 'created') . ': ' . $file);
             return Command::SUCCESS;
          }
+      } else {
+         $output->writeln($o."\n\n");
+         return Command::SUCCESS;
       }
 
       return Command::SUCCESS; // Success

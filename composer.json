@@ -1,4 +1,13 @@
 {
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/CJDevStudios/rst-gen.git"
+        }
+    ],
+    "require": {
+        "cjdevstudios/rst-gen": "dev-main"
+    },
     "require-dev": {
         "nette/php-generator": "^3.4"
     }
