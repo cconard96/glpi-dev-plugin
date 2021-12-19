@@ -112,6 +112,8 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
                   'description' => 'Description',
                   'required' => 'Required',
                   'default' => 'Default',
+                  'array' => 'Array',
+                  'negatable' => 'Negatable',
                ]));
                foreach ($opts as $opt) {
                   $opts_table->addBodyRow(new Row([
@@ -120,6 +122,8 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
                      'description' => $opt->getDescription(),
                      'required' => $opt->isValueRequired() ? 'Yes' : 'No',
                      'default' => $opt->getDefault(),
+                     'array' => $opt->isArray() ? 'Yes' : 'No',
+                     'negatable' => $opt->isValueOptional() ? 'Yes' : 'No',
                   ]));
                }
                $o .= $opts_table->render();
