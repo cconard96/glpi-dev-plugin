@@ -39,6 +39,15 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
          return strcmp($a->getName(), $b->getName());
       });
 
+      // Remove duplicate commands based on their name
+      $commands = array_reduce($commands, static function ($carry, $command) {
+         $name = $command->getName();
+         if (!isset($carry[$name])) {
+            $carry[$name] = $command;
+         }
+         return $carry;
+      }, []);
+
       $o = '';
 
       $o .= "GLPI command-line interface\n";
