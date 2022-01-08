@@ -125,9 +125,17 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
                   'negatable' => 'Negatable',
                ]));
                foreach ($opts as $opt) {
+                  $opt_name = $opt->getName();
+                  if ($opt_name) {
+                      $opt_name = '--' . $opt_name;
+                  }
+                   $opt_shortcut = $opt->getShortcut();
+                   if ($opt_shortcut) {
+                       $opt_shortcut = '-' . $opt_shortcut;
+                   }
                   $opts_table->addBodyRow(new Row([
-                     'name' => $opt->getName(),
-                     'shortcut' => $opt->getShortcut() ?? '',
+                     'name' => $opt_name,
+                     'shortcut' => $opt_shortcut,
                      'description' => $opt->getDescription(),
                      'required' => $opt->isValueRequired() ? 'Yes' : 'No',
                      'default' => $opt->getDefault(),
