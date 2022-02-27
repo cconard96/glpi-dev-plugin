@@ -19,6 +19,28 @@ class PluginDevClassviewer extends CommonGLPI {
       $options = array_filter($options, static function($k) {
          return is_numeric($k);
       }, ARRAY_FILTER_USE_KEY);
+
+      if (Plugin::isPluginActive('datainjection')) {
+          // Add injectable property to all $options set to 0
+          foreach ($options as &$option) {
+              $option['injectable'] = 0;
+          }
+          unset($option);
+
+          // Get injection class
+          $injection_class = 'PluginDatainjection' . $class . 'Injection';
+          if (class_exists($injection_class)) {
+              /** @var PluginDatainjectionInjectionInterface $injection */
+              $injection = new $injection_class();
+              $injection_options = $injection->getOptions($class);
+              foreach ($injection_options as $id => $injection_option) {
+                  if (isset($options[$id])) {
+                      $options[$id]['injectable'] = $injection_option['injectable'] ?? 0;
+                  }
+              }
+          }
+      }
+
       return $options;
    }
 
@@ -104,7 +126,8 @@ class PluginDevClassviewer extends CommonGLPI {
       $missing_searchopts = [];
       try {
          $table = $class::getTable();
-         $found_options = array_filter(self::getSearchOptions($class), static function($opt) use ($table) {
+         $all_options = self::getSearchOptions($class);
+         $found_options = array_filter($all_options, static function($opt) use ($table) {
             return strcmp($opt['table'], $table) === 0;
          });
          $found_fields = $DB->listFields($class::getTable());

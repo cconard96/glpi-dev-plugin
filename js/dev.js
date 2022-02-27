@@ -68,6 +68,8 @@ class GlpiDevView {
                if (hkey === 'table') {
                   // Is a table name
                   table += "<td>" + v + GlpiDevDBViewer.getDBSchemaButton('table', v) + GlpiDevClassViewer.getClassViewButton('table', v) + "</td>";
+               } else if (hkey === 'injectable') {
+                  table += "<td>" + (v === 1 ? 'Yes' : 'No') + "</td>";
                } else if (this.isFK(v)) {
                   if (v === 'items_id') {
                      const info_text = 'Refers to the ID field in any one of multiple tables. It is a polymorphic relationship.' +
@@ -180,7 +182,11 @@ class GlpiDevClassViewer extends GlpiDevView {
             $.each(data['missing_searchoptions'], function(i, o) {
                $(`<h4 class="warning">The field "${o}" does not have a matching search option</h4>`).appendTo(infoContainer);
             });
-            $(this.objToTable('Search Options', {
+            let extra_columns = {};
+            if (GLPI_PLUGINS_PATH['datainjection'] !== undefined) {
+               extra_columns['injectable'] = '[Data Injection] Injectable'
+            }
+            $(this.objToTable('Search Options', Object.assign({
                searchid: 'Search ID',
                table: 'Table',
                field: 'Field',
@@ -188,7 +194,7 @@ class GlpiDevClassViewer extends GlpiDevView {
                linkfield: 'Link field',
                datatype: 'Datatype',
                massiveaction: 'Massive action'
-            }, data['searchoptions'])).appendTo(infoContainer);
+            }, extra_columns), data['searchoptions'])).appendTo(infoContainer);
          },
          error: function() {
             infoContainer.empty();
