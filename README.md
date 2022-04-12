@@ -19,6 +19,11 @@ Provides a few tools to help GLPI and GLPI plugin developers.
    - Allows developers to quickly jump to the schema or class view for any foreign key fields.
  - Plugin creator
    - Provides a minimalist way to initialize a new plugin from the UI.
-- Profiler
-   - Adds a PluginDevProfiler class that can be used to profile sections of code.
-   - Adds a dashboard for displaying the statistics of profiled code sections.
+ - Profiler
+    - Adds a PluginDevProfiler class that can be used to profile sections of code.
+    - Adds a dashboard for displaying the statistics of profiled code sections.
+ - DOM Validation
+    - Adds a continual DOM validation checker that will alert the user if the DOM has any elements that violate specific rules.
+      Currently, these rules include:
+      - Elements with a duplicate ID
+      - Elements with a backslash in the ID, Name or Class attributes (This can cause unexpected issues with selectors)
