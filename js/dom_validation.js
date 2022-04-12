@@ -115,6 +115,10 @@ class GlpiDevDOMValidationTool {
         if (element === undefined || element === null) {
             return;
         }
+        // Globally ignore any reported elements that are children of the debug info panel
+        if (element.closest('div.debug-panel')) {
+            return;
+        }
         if (this.reported_elements.includes(element)) {
             return;
         }
