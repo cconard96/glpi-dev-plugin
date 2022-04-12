@@ -21,6 +21,7 @@ function plugin_init_dev() {
    }
    $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/dev.js';
    $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/themedesigner.js';
+   $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/dom_validation.js';
 
    if (Session::haveRight('config', UPDATE) && $_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
       $PLUGIN_HOOKS['menu_toadd']['dev'] = ['plugins' => 'PluginDevMenu'];
