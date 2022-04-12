@@ -1,5 +1,8 @@
 class GlpiDevDOMValidationTool {
-    static VALIDATION_INTERVAL = 10000;
+    static VALIDATION_INTERVAL_MIN = 1000;
+    static VALIDATION_INTERVAL_STEP = 5000;
+    static VALIDATION_INTERVAL_CURRENT = 1000;
+    static VALIDATION_INTERVAL_MAX = 30 * 1000;
 
     static reported_elements = [];
 
@@ -17,13 +20,13 @@ class GlpiDevDOMValidationTool {
         }
 
         this.validateDOM();
-        this.interval = window.setInterval(() => {
+        this.interval = window.setTimeout(() => {
             this.validateDOM();
-        }, this.VALIDATION_INTERVAL);
+        }, this.VALIDATION_INTERVAL_MIN);
     }
 
     static restart() {
-        window.clearInterval(this.interval);
+        window.clearTimeout(this.interval);
         this.start();
     }
 
@@ -46,6 +49,19 @@ class GlpiDevDOMValidationTool {
         this.validation_session_data.new_failures.forEach(failure => {
             this.reported_elements.push(failure.element);
         });
+
+        if (this.validation_session_data.new_failures.length === 0 && this.VALIDATION_INTERVAL_CURRENT < this.VALIDATION_INTERVAL_MAX) {
+            this.VALIDATION_INTERVAL_CURRENT += this.VALIDATION_INTERVAL_STEP;
+            if (this.VALIDATION_INTERVAL_CURRENT > this.VALIDATION_INTERVAL_MAX) {
+                this.VALIDATION_INTERVAL_CURRENT = this.VALIDATION_INTERVAL_MAX;
+            }
+        } else {
+            this.VALIDATION_INTERVAL_CURRENT = this.VALIDATION_INTERVAL_MIN;
+        }
+        // Reset timeout
+        this.interval = window.setTimeout(() => {
+            this.validateDOM();
+        }, this.VALIDATION_INTERVAL_CURRENT);
     }
 
     static checkDuplicatedIDs() {
