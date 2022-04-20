@@ -1,14 +1,25 @@
 {
+    "config": {
+        "platform": {
+            "php": "7.4.0"
+        }
+    },
     "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/CJDevStudios/rst-gen.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/cconard96/tools"
         }
     ],
     "require": {
-        "cjdevstudios/rst-gen": "dev-main"
+        "cjdevstudios/rst-gen": "dev-main",
+        "php": "^7.4"
     },
     "require-dev": {
-        "nette/php-generator": "^3.4"
+        "nette/php-generator": "^3.4",
+        "glpi-project/tools": "dev-debug/master"
     }
 }
