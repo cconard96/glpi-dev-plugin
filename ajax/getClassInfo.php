@@ -6,7 +6,7 @@ Html::header_nocache();
 Session::checkLoginUser();
 
 /** @var CommonDBTM $itemtype */
-$itemtype = $_GET['class'];
+$itemtype = html_entity_decode($_GET['class']);
 echo json_encode([
    'name'                     => [$itemtype::getTypeName(1), $itemtype::getTypeName(Session::getPluralNumber())],
    'icon'                     => $itemtype::getIcon(),
