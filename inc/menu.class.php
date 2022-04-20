@@ -27,6 +27,6 @@ class PluginDevMenu extends CommonGLPI {
     * @return boolean
     */
    static function canView() {
-      return Config::canView();
+      return ((int) $_SESSION['glpi_use_mode']) === Session::DEBUG_MODE;
    }
 }
