@@ -20,6 +20,8 @@ jobs:
         uses: "cconard96/tools/github-actions/build-package@debug/master"
         with:
           plugin-version: ${{ env.tag_name }}
+        env:
+          PHP_VERSION: 7.4
       - name: "Create release"
         id: "create-release"
         uses: "actions/create-release@v1"
