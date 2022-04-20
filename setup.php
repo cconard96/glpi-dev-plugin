@@ -20,11 +20,12 @@ function plugin_init_dev() {
       $PLUGIN_HOOKS['add_css']['dev'][] = 'css/dev.css';
    }
    $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/dev.js';
-   $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/themedesigner.js';
    $PLUGIN_HOOKS['add_javascript']['dev'][] = 'js/dom_validation.js';
 
-   if (Session::haveRight('config', UPDATE) && $_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
+   if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
       $PLUGIN_HOOKS['menu_toadd']['dev'] = ['plugins' => 'PluginDevMenu'];
+       $PLUGIN_HOOKS['helpdesk_menu_entry']['dev'] = '#';
+       $PLUGIN_HOOKS['helpdesk_menu_entry_icon']['dev'] = 'fas fa-tools';
       Plugin::registerClass(PluginDevDbschema::class, [
          'addtabon'  => get_declared_classes()
       ]);
