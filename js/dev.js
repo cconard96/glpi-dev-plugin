@@ -340,7 +340,33 @@ class GlpiDevProfiler extends GlpiDevView {
          session_select.on('change', (e) => {
             window.location = this.front_root + "profiler.php?log=" + log_select.val() + "&session=" + e.target.value;
          });
+         this.registerListeners();
+         this.refreshFilters();
       }
+   }
+
+   static registerListeners() {
+      const filter_toggles = $("[id^=devprofiler-level-]");
+      filter_toggles.on('click', () => {
+         this.refreshFilters();
+      });
+   }
+
+   static refreshFilters() {
+      const filter_toggles = $("[id^=devprofiler-level-]");
+      // Get enabled filters which are the data-level attribute of the checked checkboxes
+      let enabled_filters = [];
+      filter_toggles.filter(':checked').each(function() {
+         enabled_filters.push($(this).data('level'));
+      });
+      const table = $("#devprofiler-container table");
+      const level_col_index = table.find('th').index(table.find('th:contains("Level")'));
+      // Hide all rows
+      table.find('tbody tr').hide();
+      // Show rows with enabled filters
+      table.find('tbody tr').filter(function () {
+         return enabled_filters.includes($(this).find('td').eq(level_col_index).data('level'));
+      }).show();
    }
 }
 
