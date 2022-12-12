@@ -146,5 +146,6 @@ class GlpiDevDOMValidationTool {
         });
     }
 }
+
 // Auto-start DOM validation
 GlpiDevDOMValidationTool.start();

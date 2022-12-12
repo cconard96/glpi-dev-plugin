@@ -1,63 +1,74 @@
 #classview-container, #dbschemaview-container {
-  display: flex;
+   display: flex;
 }
+
 #classview-container:not([data-embedded=true]), #dbschemaview-container:not([data-embedded=true]) {
-  height: 80vh;
+   height: 80vh;
 }
+
 #classview-container .sidebar, #dbschemaview-container .sidebar {
-  flex-basis: 25%;
-  max-width: 300px;
-  overflow: auto;
-  background-color: white;
+   flex-basis: 25%;
+   max-width: 300px;
+   overflow: auto;
+   background-color: white;
 }
+
 #classview-container .sidebar input[name=search], #dbschemaview-container .sidebar input[name=search] {
-  width: 90%;
-  margin: 10px auto;
+   width: 90%;
+   margin: 10px auto;
 }
+
 #classview-container .info-container, #dbschemaview-container .info-container {
-  flex: 90%;
-  overflow: auto;
-  background-color: transparent;
+   flex: 90%;
+   overflow: auto;
+   background-color: transparent;
 }
+
 #classview-container .info-container div.toolbar, #dbschemaview-container .info-container div.toolbar {
-  margin-bottom: 10px;
+   margin-bottom: 10px;
 }
+
 #classview-container .info-container button, #dbschemaview-container .info-container button {
-  background: white;
-  border: 1px solid black;
-  border-radius: 5px;
-  cursor: pointer;
+   background: white;
+   border: 1px solid black;
+   border-radius: 5px;
+   cursor: pointer;
 }
+
 #classview-container .info-container table.tab_cadre_fixe, #dbschemaview-container .info-container table.tab_cadre_fixe {
-  max-width: 100%;
+   max-width: 100%;
 }
+
 #classview-container .info-container table.tab_cadre_fixe .info, #classview-container .info-container table.tab_cadre_fixe button, #dbschemaview-container .info-container table.tab_cadre_fixe .info, #dbschemaview-container .info-container table.tab_cadre_fixe button {
-  margin-left: 5px;
+   margin-left: 5px;
 }
 
 #devaudit-container details {
-  margin-bottom: 1em;
+   margin-bottom: 1em;
 }
+
 #devaudit-container details summary {
-  padding: 5px;
-  border: 1px solid black;
-  border-radius: 0.5em;
-  font-size: 1.2em;
+   padding: 5px;
+   border: 1px solid black;
+   border-radius: 0.5em;
+   font-size: 1.2em;
 }
+
 #devaudit-container details .warning {
-  text-align: left;
-  cursor: default;
+   text-align: left;
+   cursor: default;
 }
+
 #devaudit-container details ul {
-  list-style-type: decimal;
+   list-style-type: decimal;
 }
 
 #themedesigner-results {
-  background: white;
-  max-height: 200px;
-  overflow: auto;
-  width: 80%;
-  margin: auto;
+   background: white;
+   max-height: 200px;
+   overflow: auto;
+   width: 80%;
+   margin: auto;
 }
 
 /*# sourceMappingURL=dev.css.map */
