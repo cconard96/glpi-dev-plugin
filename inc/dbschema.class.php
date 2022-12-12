@@ -59,7 +59,7 @@ class PluginDevDbschema extends CommonGLPI {
 
       echo "</div>";
       echo "</div>";
-      echo Html::scriptBlock("window.glpiDevHelper.showDBTableSchema('{$item::getTable()}')");
+      echo Html::scriptBlock("GlpiDevDBViewer.showDBTableSchema('{$item::getTable()}')");
    }
 
    public function showForm()

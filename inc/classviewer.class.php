@@ -63,7 +63,7 @@ class PluginDevClassviewer extends CommonGLPI {
       echo "</div>";
       echo "</div>";
       $item_class = get_class($item);
-      echo Html::scriptBlock("window.glpiDevHelper.showClassInfo('{$item_class}')");
+      echo Html::scriptBlock("GlpiDevClassViewer.showClassInfo('{$item_class}')");
    }
 
    public function showForm()
