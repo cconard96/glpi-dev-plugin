@@ -1,5 +1,6 @@
 #classview-container, #dbschemaview-container {
    display: flex;
+
    &:not([data-embedded="true"]) {
       height: 80vh;
    }
@@ -52,10 +53,12 @@
          border-radius: 0.5em;
          font-size: 1.2em;
       }
+
       .warning {
          text-align: left;
          cursor: default;
       }
+
       ul {
          list-style-type: decimal;
       }

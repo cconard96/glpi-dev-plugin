@@ -5,6 +5,7 @@ table.plugin-dev-menu {
       color: #DDDDDD;
    }
 }
+
 #classview-container, #dbschemaview-container {
    .sidebar {
       input[name='search'] {
@@ -12,7 +13,9 @@ table.plugin-dev-menu {
             outline: none;
          }
       }
+
       background-color: #242323;
+
       li a:hover {
          color: #DDDDDD;
       }
@@ -24,6 +27,7 @@ table.plugin-dev-menu {
       button {
          background: #242323;
          border: 1px solid #AAAAAA;
+
          .fas {
             color: #AAAAAA;
          }
@@ -36,9 +40,11 @@ table.plugin-dev-menu {
 
       summary {
          border: 1px solid #242323;
+
          button {
             background: #242323;
             border: 1px solid #AAAAAA;
+
             .fas {
                color: #AAAAAA;
             }
