@@ -1,8 +1,8 @@
 <?php
 
 use CJDevStudios\RSTGen\Components\Table\HeaderRow;
+use CJDevStudios\RSTGen\Components\Table\ListTable;
 use CJDevStudios\RSTGen\Components\Table\Row;
-use CJDevStudios\RSTGen\Components\Table\Table;
 use Glpi\Console\AbstractCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -81,7 +81,7 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
          if ($arg_count) {
             $o .= "Arguments (in order):\n\n";
 
-            $args_table = new Table();
+            $args_table = new ListTable();
             $args_table->addHeaderRow(new HeaderRow([
                'name' => 'Name',
                'description' => 'Description',
@@ -105,7 +105,7 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
          if ($opt_count) {
             $o .= "Options:\n\n";
 
-            $opts_table = new Table();
+            $opts_table = new ListTable();
             $opts_table->addHeaderRow(new HeaderRow([
                'name' => 'Name',
                'shortcut' => 'Shortcut',
@@ -161,7 +161,9 @@ final class PluginDevGenCLIDocsCommand extends AbstractCommand {
    }
 
    private function getCLIDoc(array $commands): string {
-      $o = "GLPI command-line interface\n";
+      $o = "..\n";
+      $o .= "   This page was automatically generated using the `dev` plugin's `bin/console dev:docs:generate:cli command`.\n\n";
+      $o .= "GLPI command-line interface\n";
       $o .= "===========================\n\n";
       $o .= "GLPI includes a CLI tool to help you to manage your GLPI instance.\n";
       $o .= "This interface is provided by the `bin/console` script which can be run from the root of your GLPI directory.\n\n";
