@@ -217,6 +217,11 @@ class PluginDevProfiler extends CommonGLPI
         return $result;
     }
 
+    public static function showDebugTab(array $params)
+    {
+        self::showDashboard(null, session_id());
+    }
+
     public static function showDashboard(string $selected_log = null, string $selected_session = null): void
     {
         $output = '<div id="devprofiler-container">';
@@ -245,7 +250,7 @@ class PluginDevProfiler extends CommonGLPI
         }
         $sessions = self::getSectionsFromFile($selected_log);
 
-        if ($selected_session === null) {
+        if ($selected_session === null || !isset($sessions[$selected_session])) {
             $selected_session = array_key_last($sessions);
         }
         $output .= "<select>";

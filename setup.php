@@ -33,6 +33,12 @@ function plugin_init_dev()
         Plugin::registerClass(PluginDevClassviewer::class, [
             'addtabon' => get_declared_classes()
         ]);
+        $PLUGIN_HOOKS[\Glpi\Plugin\Hooks::DEBUG_TABS]['dev'] = [
+            [
+                'title' => 'Profiler',
+                'display_callable' => ['PluginDevProfiler', 'showDebugTab']
+            ]
+        ];
     }
 }
 
