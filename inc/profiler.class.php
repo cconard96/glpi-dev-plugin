@@ -267,18 +267,32 @@ class PluginDevProfiler extends CommonGLPI
         $level_info = self::LEVEL_INFO;
         $level_slow = self::LEVEL_SLOW;
         $level_critical = self::LEVEL_CRITICAL;
+        $levels = [
+            self::LEVEL_INFO => [
+                'label' => 'Info',
+                'color' => new Color('526dad'),
+            ],
+            self::LEVEL_SLOW => [
+                'label' => 'Slow',
+                'color' => new Color('ffaa00'),
+            ],
+            self::LEVEL_CRITICAL => [
+                'label' => 'Critical',
+                'color' => new Color('ff0000'),
+            ],
+        ];
         $output .= <<<HTML
         <div class="form-check form-check-inline form-switch">
              <input class="form-check-input" type="checkbox" id="devprofiler-level-info" data-level="$level_info">
-             <label class="form-check-label" for="devprofiler-level-info">Info</label>
+             <label class="form-check-label" for="devprofiler-level-info">{$levels[$level_info]['label']}</label>
         </div>
         <div class="form-check form-check-inline form-switch">
              <input class="form-check-input" type="checkbox" id="devprofiler-level-slow" data-level="$level_slow" checked>
-             <label class="form-check-label" for="devprofiler-level-slow">Slow</label>
+             <label class="form-check-label" for="devprofiler-level-slow">{$levels[$level_slow]['label']}</label>
         </div>
         <div class="form-check form-check-inline form-switch">
              <input class="form-check-input" type="checkbox" id="devprofiler-level-critical" data-level="$level_critical" checked>
-             <label class="form-check-label" for="devprofiler-level-critical">Critical</label>
+             <label class="form-check-label" for="devprofiler-level-critical">{$levels[$level_critical]['label']}</label>
         </div>
 HTML;
 
@@ -304,20 +318,7 @@ HTML;
             'db' => new Color('9252ad'),
             'twig' => new Color('64ad52'),
         ];
-        $levels = [
-            self::LEVEL_INFO => [
-                'label' => 'Info',
-                'color' => new Color('526dad'),
-            ],
-            self::LEVEL_SLOW => [
-                'label' => 'Slow',
-                'color' => new Color('ffaa00'),
-            ],
-            self::LEVEL_CRITICAL => [
-                'label' => 'Critical',
-                'color' => new Color('ff0000'),
-            ],
-        ];
+
         $calc_color = static function ($str) {
             $code = dechex(crc32($str));
             $code = substr($code, 0, 6);
