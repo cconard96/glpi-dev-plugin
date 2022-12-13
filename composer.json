@@ -11,7 +11,7 @@
     ],
     "require": {
         "cjdevstudios/rst-gen": "dev-main",
-        "php": "^7.4"
+        "php": "^7.4|^8.0|^8.1"
     },
     "require-dev": {
         "nette/php-generator": "^3.4",
