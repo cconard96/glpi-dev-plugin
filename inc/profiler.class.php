@@ -273,8 +273,8 @@ class PluginDevProfiler extends CommonGLPI
              <label class="form-check-label" for="devprofiler-level-info">Info</label>
         </div>
         <div class="form-check form-check-inline form-switch">
-             <input class="form-check-input" type="checkbox" id="devprofiler-level-warning" data-level="$level_slow" checked>
-             <label class="form-check-label" for="devprofiler-level-warning">Warning</label>
+             <input class="form-check-input" type="checkbox" id="devprofiler-level-slow" data-level="$level_slow" checked>
+             <label class="form-check-label" for="devprofiler-level-slow">Slow</label>
         </div>
         <div class="form-check form-check-inline form-switch">
              <input class="form-check-input" type="checkbox" id="devprofiler-level-critical" data-level="$level_critical" checked>
