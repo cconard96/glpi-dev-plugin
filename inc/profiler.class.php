@@ -278,6 +278,7 @@ HTML;
            <th>Start</th>
            <th>End</th>
            <th>Duration</th>
+           <th>Count</th>
        </tr>
     </thead>
     <tbody>
@@ -312,6 +313,11 @@ HTML;
                 $end = $section['end'] ?? '';
                 $duration = (!empty($start) && !empty($end)) ? $end - $start : $section['duration'];
 
+                if ($section['aggregate'] ?? false) {
+                    $name = "<strong>{$name} (aggregated)</strong>";
+                }
+                $count = $section['count'] ?? 1;
+
                 // Calculate color if needed
                 if (!isset($category_colors[$category])) {
                     $category_colors[$category] = $calc_color($category);
@@ -324,7 +330,7 @@ HTML;
                 $output .= "<tr>
                 <td><span style='padding: 5px; border-radius: 25%; background-color: {$bg_color_cat}; color: {$fg_color_cat}'>{$category}</span></td>
                 <td data-level='{$level}'><span style='padding: 5px; border-radius: 25%; background-color: {$bg_color_level}; color: {$fg_color_level}'>{$levels[$level]['label']}</span></td>
-                <td>{$name}</td><td>{$start}</td><td>{$end}</td><td>{$duration}</td>
+                <td>{$name}</td><td>{$start}</td><td>{$end}</td><td>{$duration}</td><td>{$count}</td>
             </tr>";
             }
         }
