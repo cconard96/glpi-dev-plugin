@@ -1,6 +1,6 @@
 <?php
 
-define('PLUGIN_DEV_VERSION', '2.0.0');
+define('PLUGIN_DEV_VERSION', '2.1.0');
 define('PLUGIN_DEV_MIN_GLPI', '10.0.0');
 define('PLUGIN_DEV_MAX_GLPI', '10.2.0');
 
