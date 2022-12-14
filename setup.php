@@ -36,7 +36,7 @@ function plugin_init_dev()
         $PLUGIN_HOOKS[\Glpi\Plugin\Hooks::DEBUG_TABS]['dev'] = [
             [
                 'title' => 'Profiler',
-                'display_callable' => ['PluginDevProfiler', 'showDebugTab']
+                'display_callable' => 'PluginDevProfiler::showDebugTab'
             ]
         ];
     }
