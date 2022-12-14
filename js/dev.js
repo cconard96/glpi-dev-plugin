@@ -359,6 +359,22 @@ class GlpiDevProfiler extends GlpiDevView {
         filter_toggles.on('click', () => {
             this.refreshFilters();
         });
+        const debug_panel_container = $('div.debug-panel #devprofiler-container');
+        if (debug_panel_container.length > 0) {
+            // Add listener for when the profiler tab is shown
+            const tab_pane = debug_panel_container.closest('.tab-pane').attr('id');
+            const tab_link = $('a[href="#' + tab_pane + '"]');
+            tab_link.on('shown.bs.tab', () => {
+                $.ajax({
+                    'url': this.ajax_root + 'profiler.php',
+                    'method': 'GET',
+                }).then((result) => {
+                    if (result) {
+                        debug_panel_container.replaceWith($(result));
+                    }
+                });
+            });
+        }
     }
 
     static refreshFilters() {
