@@ -20,6 +20,14 @@ class PluginDevProfiler extends CommonGLPI
     public static $disabled = false;
 
     public static $levels_to_log = self::LEVEL_SLOW | self::LEVEL_CRITICAL;
+
+    /**
+     * If true, sections with the same name will have their duration summed up and if they meet a logged level, an aggregate log entry will be created.
+     * This does not remove the individual log entries.
+     * @var bool
+     */
+    public static $log_aggregate = true;
+
     private static $slow_time_ms = 100;
 
     private static $critical_time_ms = 500;
@@ -49,16 +57,43 @@ class PluginDevProfiler extends CommonGLPI
     public static function dumpSections()
     {
         $completed = array_filter(self::$prev_sections, static function (PluginDevProfilerSection $section) {
-            // Only get finished sections and those whose level is in the levels to log (bit flags)
-            $level = $section->getLevel();
-            return $section->isFinished() && ($level & self::$levels_to_log) === $level;
+            return $section->isFinished();
         });
         if (count($completed)) {
             $log_path = self::getProfilerLogPath();
             $log = fopen($log_path, 'ab');
             foreach ($completed as $k => $section) {
                 unset(self::$prev_sections[$k]);
-                fwrite($log, json_encode($section->toArray()) . PHP_EOL);
+                if ($section->getLevel() & self::$levels_to_log === $section->getLevel()) {
+                    fwrite($log, json_encode($section->toArray()) . PHP_EOL);
+                }
+            }
+            if (self::$log_aggregate) {
+                $aggregated = [];
+                foreach ($completed as $section) {
+                    $name = $section->getName();
+                    if (!isset($aggregated[$name])) {
+                        $aggregated[$name] = [
+                            'name' => $name,
+                            'session_id' => $section->getSessionId(),
+                            'category' => $section->getCategory(),
+                            'aggregate' => true,
+                            'duration' => 0,
+                            'count' => 0,
+                            'level' => $section->getLevel(),
+                        ];
+                    }
+                    $aggregated[$name]['duration'] += $section->getDuration();
+                    $aggregated[$name]['count']++;
+                }
+                foreach ($aggregated as &$section) {
+                    // Recalculate the level based on the aggregated duration
+                    $section['level'] = self::getLevelFromDuration($section['duration']);
+                    if (($section['level'] & self::$levels_to_log) === $section['level']) {
+                        fwrite($log, json_encode($section) . PHP_EOL);
+                    }
+                }
+                unset($section);
             }
             fclose($log);
         }
@@ -79,6 +114,17 @@ class PluginDevProfiler extends CommonGLPI
         self::$current_sections[] = new PluginDevProfilerSection($category, $name, microtime(true) * 1000);
     }
 
+    public static function getLevelFromDuration(int $duration): int
+    {
+        $level = self::LEVEL_INFO;
+        if ($duration > self::$critical_time_ms) {
+            $level = self::LEVEL_CRITICAL;
+        } else if ($duration > self::$slow_time_ms) {
+            $level = self::LEVEL_SLOW;
+        }
+        return $level;
+    }
+
     public static function end(string $name): void
     {
         // get the last section with the given name
@@ -91,12 +137,7 @@ class PluginDevProfiler extends CommonGLPI
             $section->end(microtime(true) * 1000);
             unset(self::$current_sections[$k]);
             $duration = $section->getDuration();
-            $level = self::LEVEL_INFO;
-            if ($duration > self::$critical_time_ms) {
-                $level = self::LEVEL_CRITICAL;
-            } else if ($duration > self::$slow_time_ms) {
-                $level = self::LEVEL_SLOW;
-            }
+            $level = self::getLevelFromDuration($duration);
             $section->setLevel($level);
             self::$prev_sections[] = $section;
         }
@@ -127,97 +168,26 @@ class PluginDevProfiler extends CommonGLPI
         return $log_files;
     }
 
-    private static function getSessions(string $file): array
-    {
-        $sessions = [];
-        $log = fopen($file, 'rb');
-        while (($line = fgets($log)) !== false) {
-            $tokens = explode("\t", $line);
-            $ts = null;
-            preg_match('/\[(.*)\]/', $tokens[0], $ts);
-            $ts = $ts[1];
-            $session_id = preg_match('/\[(.*)\]/', $tokens[1]);
-            preg_match('/\[(.*)\]/', $tokens[1], $session_id);
-            $session_id = $session_id[1];
-            $category = preg_match('/\[(.*)\]/', $tokens[2]);
-            preg_match('/\[(.*)\]/', $tokens[2], $category);
-            $category = $category[1];
-            if (count($tokens) >= 4) {
-                $level_matches = [];
-                preg_match('/\[(.*)\]/', $tokens[3], $level_matches);
-                $level = $level_matches[1];
-                $message = $tokens[4];
-            } else {
-                $level = 'info';
-                $message = $tokens[3];
-            }
-
-            if (!isset($sessions[$session_id])) {
-                $sessions[$session_id] = [];
-            }
-
-            $event = [
-                'timestamp' => $ts,
-                'category' => $category,
-                'level' => $level,
-                'message' => $message,
-            ];
-            if (str_starts_with($message, 'Started section')) {
-                $event['name'] = trim(preg_replace('/^Started section/', '', $message));
-                $event['start'] = $ts;
-                $sessions[$session_id][] = $event;
-            } else if (str_starts_with($message, 'Ended section')) {
-                $sub_tokens = explode('after', trim(preg_replace('/^Ended section/', '', $message)));
-                $name = trim($sub_tokens[0]);
-                $duration = trim(str_replace('/ ms$/', '', $sub_tokens[1]));
-                // Get level
-                if (count($tokens) >= 4) {
-                    $level_matches = [];
-                    preg_match('/\[(.*)\]/', $tokens[3], $level_matches);
-                    $level = $level_matches[1];
-                }
-                // Find matching existing event
-                foreach ($sessions as $session_id => &$events) {
-                    $is_matched = false;
-                    foreach ($events as &$event) {
-                        if (!isset($event['end']) && isset($event['name']) && $event['name'] === $name) {
-                            $event['end'] = $ts;
-                            $event['duration'] = $duration;
-                            $event['level'] = $level;
-                            $is_matched = true;
-                            break;
-                        }
-                    }
-                    unset($event);
-                    if ($is_matched) {
-                        break;
-                    }
-                }
-            }
-        }
-        return $sessions;
-    }
-
     private static function getSectionsFromFile(string $file): array
     {
         $sections = [];
         $log = fopen($file, 'rb');
         while (($line = fgets($log)) !== false) {
-            $sections[] = PluginDevProfilerSection::fromArray(json_decode($line, true));
+            $sections[] = json_decode($line, true);
         }
         // Group by session ID
         $result = [];
         foreach ($sections as $section) {
-            if (!isset($result[$section->getSessionId()])) {
-                $result[$section->getSessionId()] = [];
+            if (!isset($result[$section['session_id']])) {
+                $result[$section['session_id']] = [];
             }
-            $result[$section->getSessionId()][] = $section;
+            $result[$section['session_id']][] = $section;
         }
 
         return $result;
     }
 
-    public static function showDebugTab(array $params)
+    public static function showDebugTab(...$params)
     {
         self::showDashboard(null, session_id());
     }
@@ -246,6 +216,7 @@ class PluginDevProfiler extends CommonGLPI
         $output .= '</select>';
 
         if ($selected_log === null) {
+            echo '<span>There are no profiler logs available.</span>';
             return;
         }
         $sessions = self::getSectionsFromFile($selected_log);
@@ -334,12 +305,12 @@ HTML;
                 continue;
             }
             foreach ($sections as $section) {
-                $category = $section->getCategory();
-                $level = $section->getLevel();
-                $name = $section->getName();
-                $start = $section->getStart();
-                $end = $section->getEnd();
-                $duration = $section->getDuration();
+                $category = $section['category'];
+                $level = $section['level'];
+                $name = $section['name'];
+                $start = $section['start'] ?? '';
+                $end = $section['end'] ?? '';
+                $duration = (!empty($start) && !empty($end)) ? $end - $start : $section['duration'];
 
                 // Calculate color if needed
                 if (!isset($category_colors[$category])) {
