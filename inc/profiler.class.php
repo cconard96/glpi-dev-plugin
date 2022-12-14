@@ -330,7 +330,7 @@ HTML;
                 $output .= "<tr>
                 <td><span style='padding: 5px; border-radius: 25%; background-color: {$bg_color_cat}; color: {$fg_color_cat}'>{$category}</span></td>
                 <td data-level='{$level}'><span style='padding: 5px; border-radius: 25%; background-color: {$bg_color_level}; color: {$fg_color_level}'>{$levels[$level]['label']}</span></td>
-                <td>{$name}</td><td>{$start}</td><td>{$end}</td><td>{$duration}</td><td>{$count}</td>
+                <td>{$name}</td><td>{$start}</td><td>{$end}</td><td>{$duration}ms</td><td>{$count}</td>
             </tr>";
             }
         }
