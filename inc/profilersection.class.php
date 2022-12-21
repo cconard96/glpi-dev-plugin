@@ -21,12 +21,15 @@ class PluginDevProfilerSection
 
     private $level = PluginDevProfiler::LEVEL_INFO;
 
-    public function __construct(string $category, string $name, $start)
+    private $is_recursive;
+
+    public function __construct(string $category, string $name, $start, $is_recursive = false)
     {
         $this->category = $category;
         $this->name = $name;
         $this->session_id = session_id() ?? (string)Uuid::uuid4();
         $this->start = (int)$start;
+        $this->is_recursive = $is_recursive;
     }
 
     public function end($time): void
@@ -83,6 +86,16 @@ class PluginDevProfilerSection
     public function setSessionID(string $session_id): void
     {
         $this->session_id = $session_id;
+    }
+
+    /**
+     * Returns true if this section was started in a recursive call.
+     * This would not return true for the top-level section.
+     * @return bool
+     */
+    public function isRecursive(): bool
+    {
+        return $this->is_recursive;
     }
 
     public function toArray(): array
