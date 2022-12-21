@@ -83,7 +83,10 @@ class PluginDevProfiler extends CommonGLPI
                             'level' => $section->getLevel(),
                         ];
                     }
-                    $aggregated[$name]['duration'] += $section->getDuration();
+                    if (!$section->isRecursive()) {
+                        // Do not count inner sections (recursive calls except the top-level one) to avoid double-counting
+                        $aggregated[$name]['duration'] += $section->getDuration();
+                    }
                     $aggregated[$name]['count']++;
                 }
                 foreach ($aggregated as &$section) {
@@ -111,7 +114,12 @@ class PluginDevProfiler extends CommonGLPI
             self::$session_start = new \DateTime('now');
             self::$session_uuid = session_id() ?? (string)\Ramsey\Uuid\Uuid::uuid4();
         }
-        self::$current_sections[] = new PluginDevProfilerSection($category, $name, microtime(true) * 1000);
+        // Check if a section with the same name is already running
+        $match = array_filter(self::$current_sections, static function (PluginDevProfilerSection $section) use ($name) {
+            return $section->getName() === $name && !$section->isFinished();
+        });
+        $is_recursive = count($match) > 0;
+        self::$current_sections[] = new PluginDevProfilerSection($category, $name, microtime(true) * 1000, $is_recursive);
     }
 
     public static function getLevelFromDuration(int $duration): int
