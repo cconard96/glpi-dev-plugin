@@ -1,6 +1,10 @@
 # GLPI Development Helper Plugin
 [![CodeFactor](https://www.codefactor.io/repository/github/cconard96/glpi-dev-plugin/badge)](https://www.codefactor.io/repository/github/cconard96/glpi-dev-plugin)
 
+## /!\ This plugin is no longer supported /!\
+As of GLPI 10.0.18, most of the functionality from this plugin was migrated into GLPI itself in the new debug toolbar.
+The remaining main feature of listing search options was integrated into GLPI's debug toolbar for GLPI 11.
+
 Provides a few tools to help GLPI and GLPI plugin developers.
 
 ## Requirements
